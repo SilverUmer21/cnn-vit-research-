@@ -47,7 +47,7 @@ ABLATION_SEED = 42
 @dataclass(frozen=True)
 class TrainConfig:
     # --- proposal, Section IV-D -----------------------------------------------------------
-    epochs: int = 20                 # maximum epochs
+    epochs: int = 10                 # maximum epochs (proposal: 20; reduced for the Colab GPU budget)
     batch_size: int = 32
     lr: float = 1e-4                 # AdamW initial learning rate
     weight_decay: float = 1e-4       # decoupled weight decay (AdamW), applied to all parameters
