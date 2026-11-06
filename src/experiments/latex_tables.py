@@ -41,15 +41,15 @@ def main_results(main: pd.DataFrame, n_test=5431):
         "training seeds. Best mean per column in bold.", "tab:main", wide=True)
 
 
-def per_seed(per_seed_df: pd.DataFrame):
+def per_seed(per_seed_df: pd.DataFrame, max_epochs=10, patience=5):
     rows = [[display(r["model"]), str(r["seed"]), f"{100 * r['accuracy']:.2f}", f"{100 * r['macro_f1']:.2f}",
              str(int(r["errors"])), str(int(r["best_epoch"])), str(int(r["epochs_run"]))]
             for _, r in per_seed_df.iterrows()]
     return latex_table(["Model", "Seed", "Accuracy (\\%)", "Macro F1 (\\%)", "Errors", "Best epoch",
                         "Epochs run"], rows,
                        "Test results of every training run. Best epoch = epoch with the lowest validation "
-                       "loss (its weights are evaluated); training stopped after 5 epochs without improvement "
-                       "or at 20 epochs.", "tab:perseed")
+                       f"loss (its weights are evaluated); training stops after {patience} epochs without "
+                       f"improvement or at {max_epochs} epochs.", "tab:perseed")
 
 
 def statistics(stats: pd.DataFrame):

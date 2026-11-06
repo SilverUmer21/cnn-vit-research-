@@ -102,12 +102,15 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     name = run_name(model_key, seed, variant)
     rd = paths.run_dir(name)
-    if (rd / "config.json").exists() and storage.load_json(rd / "config.json").get("pipeline") != PIPELINE:
-        # started with an older data pipeline: keep it aside and train this run again from scratch
-        stale = paths.persist / "runs_stale" / name
-        stale.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(rd), str(stale.with_name(f"{name}_{int(time.time())}")))
-        log(f"[{name}] older pipeline found, moved to runs_stale/ and restarting")
+    if (rd / "config.json").exists():
+        old = storage.load_json(rd / "config.json")
+        if old.get("pipeline") != PIPELINE or old.get("train_config") != cfg.to_dict():
+            # trained under other settings: keep it aside and train this run again from scratch,
+            # so every run in runs/ shares exactly the same protocol
+            stale = paths.persist / "runs_stale" / f"{name}_{int(time.time())}"
+            stale.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(rd), str(stale))
+            log(f"[{name}] trained with different settings, moved to runs_stale/ and restarting")
     if (rd / "DONE").exists():
         log(f"[{name}] already finished, skipping")
         return storage.load_json(rd / "summary.json")
