@@ -10,7 +10,7 @@ from __future__ import annotations
 import numpy as np
 
 from .config import MODEL_ORDER
-from .data import make_transform
+from .data import Preprocess, load_uint8
 from .gradcam import GradCAM
 
 
@@ -64,18 +64,16 @@ def select_examples(pair, kind, k=12, seed=0):
 
 def gradcam_rows(models, pair, indices, data_root, device="cpu"):
     """models: {model_key: trained Classifier}. Returns rows for plots.gradcam_grid."""
-    from PIL import Image
     names, paths, labels = pair[MODEL_ORDER[0]]["class_names"], pair[MODEL_ORDER[0]]["paths"], pair[MODEL_ORDER[0]]["labels"]
     cams = {m: GradCAM(models[m].to(device)) for m in MODEL_ORDER}
+    preps = {m: Preprocess(m).to(device) for m in MODEL_ORDER}
     rows = []
     try:
         for i in indices:
-            with Image.open(f"{data_root}/{paths[i]}") as im:
-                im = im.convert("RGB")
-            row = {"image": np.asarray(im.resize((256, 256)), dtype=np.float32) / 255.0,
-                   "true": names[labels[i]]}
+            img = load_uint8(f"{data_root}/{paths[i]}")
+            row = {"image": img.permute(1, 2, 0).numpy().astype(np.float32) / 255.0, "true": names[labels[i]]}
             for m in MODEL_ORDER:
-                x = make_transform(m, train=False)(im)[None].to(device)
+                x = preps[m](img[None].to(device), train=False)
                 cam, c, prob = cams[m](x)
                 row[m] = (cam, names[c], prob)
             rows.append(row)

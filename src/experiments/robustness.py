@@ -12,7 +12,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from .data import CORRUPTIONS, CorruptedMultiModelDataset
+from .data import CORRUPTIONS, CorruptedDataset, Preprocess
 from .evaluate import classification_metrics
 
 
@@ -22,23 +22,26 @@ def evaluate_corruptions(models: dict, paths, device, batch_size=128, num_worker
     """models: {run_name: (model_key, nn.Module)}. Returns a long DataFrame with one row per
     (run, corruption, severity)."""
     keys = sorted({k for k, _ in models.values()})
+    preps = {k: Preprocess(k).to(device) for k in keys}
     for _, m in models.values():
         m.to(device).eval()
     corruptions = corruptions or list(CORRUPTIONS)
     settings = [("clean", 0)] + [(c, s) for c in corruptions for s in (1, 2, 3)]
     rows = []
     for kind, severity in settings:
-        ds = CorruptedMultiModelDataset(paths.manifest, paths.data_root, kind, severity, keys)
+        ds = CorruptedDataset(paths.manifest, paths.data_root, kind, severity)
         loader = DataLoader(ds, batch_size=batch_size, num_workers=num_workers,
                             pin_memory=(device == "cuda"))
         preds = {name: [] for name in models}
         labels = []
-        for i, (xs, y) in enumerate(loader):
+        for i, (x, y) in enumerate(loader):
             if max_batches is not None and i >= max_batches:
                 break
             labels.append(y)
+            x = x.to(device, non_blocking=True)
+            inputs = {k: preps[k](x, train=False) for k in keys}
             for name, (key, model) in models.items():
-                preds[name].append(model(xs[key].to(device, non_blocking=True)).argmax(1).cpu())
+                preds[name].append(model(inputs[key]).argmax(1).cpu())
         y = torch.cat(labels).numpy()
         for name, (key, _) in models.items():
             m = classification_metrics(y, torch.cat(preds[name]).numpy(), len(ds.classes))

@@ -19,6 +19,7 @@ from __future__ import annotations
 import math
 import platform
 import random
+import shutil
 import time
 
 import numpy as np
@@ -28,9 +29,11 @@ import torch.nn.functional as F
 
 from . import storage
 from .config import MODELS, TrainConfig, run_name
-from .data import make_loaders
+from .data import Preprocess, make_loaders
 from .evaluate import classification_metrics, predict
 from .models import build_model, count_parameters
+
+PIPELINE = "gpu-preprocess-v1"   # recorded in config.json; runs from another pipeline are redone
 
 
 def seed_everything(seed: int):
@@ -61,7 +64,7 @@ def _cosine(total_steps: int):
     return lambda step: 0.5 * (1.0 + math.cos(math.pi * min(step, total_steps) / total_steps))
 
 
-def _train_one_epoch(model, loader, optimizer, scheduler, scaler, device, cfg):
+def _train_one_epoch(model, loader, prep, optimizer, scheduler, scaler, device, cfg):
     model.train()
     use_amp = cfg.amp and device == "cuda"
     loss_sum = torch.zeros((), device=device)
@@ -70,7 +73,7 @@ def _train_one_epoch(model, loader, optimizer, scheduler, scaler, device, cfg):
     for i, (x, y) in enumerate(loader):
         if cfg.max_train_batches is not None and i >= cfg.max_train_batches:
             break
-        x = x.to(device, non_blocking=True)
+        x = prep(x.to(device, non_blocking=True), train=True)
         y = y.to(device, non_blocking=True)
         with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=use_amp):
             logits = model(x)
@@ -99,6 +102,12 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     name = run_name(model_key, seed, variant)
     rd = paths.run_dir(name)
+    if (rd / "config.json").exists() and storage.load_json(rd / "config.json").get("pipeline") != PIPELINE:
+        # started with an older data pipeline: keep it aside and train this run again from scratch
+        stale = paths.persist / "runs_stale" / name
+        stale.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(rd), str(stale.with_name(f"{name}_{int(time.time())}")))
+        log(f"[{name}] older pipeline found, moved to runs_stale/ and restarting")
     if (rd / "DONE").exists():
         log(f"[{name}] already finished, skipping")
         return storage.load_json(rd / "summary.json")
@@ -107,7 +116,8 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
     if device == "cuda":
         torch.backends.cudnn.benchmark = True   # fixed input size: let cuDNN pick fast kernels
     seed_everything(seed)
-    loaders = make_loaders(paths, model_key, cfg, seed, variant, device)
+    loaders = make_loaders(paths, cfg, seed, device)
+    prep = Preprocess(model_key, variant).to(device)
     class_names = loaders["train"].dataset.classes
     model = build_model(model_key, class_names, pretrained=pretrained).to(device)
 
@@ -134,7 +144,8 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
         total, trainable = count_parameters(model)
         storage.save_json({
             "run": name, "model": model_key, "checkpoint": MODELS[model_key]["checkpoint"],
-            "seed": seed, "preprocessing": variant, "train_config": cfg.to_dict(),
+            "seed": seed, "preprocessing": variant, "pipeline": PIPELINE,
+            "train_config": cfg.to_dict(),
             "parameters": total, "trainable_parameters": trainable,
             "steps_per_epoch": steps_per_epoch, "environment": environment_info(device),
         }, rd / "config.json")
@@ -143,21 +154,21 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
     gpu = torch.cuda.get_device_name(0) if device == "cuda" else "cpu"
     while state["epoch"] + 1 < cfg.epochs and not state["stopped_early"]:
         epoch = state["epoch"] + 1
-        torch.manual_seed(seed * 1000 + epoch)          # dropout etc. depend on (seed, epoch) only
+        torch.manual_seed(seed * 1000 + epoch)   # augmentation and dropout depend on (seed, epoch) only
         loaders["train"].set_epoch(epoch)
         if device == "cuda":
             torch.cuda.reset_peak_memory_stats()
             torch.cuda.synchronize()
         t0 = time.perf_counter()
         train_loss, train_acc, n_train = _train_one_epoch(
-            model, loaders["train"], optimizer, scheduler, scaler, device, cfg)
+            model, loaders["train"], prep, optimizer, scheduler, scaler, device, cfg)
         if device == "cuda":
             torch.cuda.synchronize()
         train_time = time.perf_counter() - t0
         peak_mem = torch.cuda.max_memory_allocated() / 2**20 if device == "cuda" else float("nan")
 
         t1 = time.perf_counter()
-        logits, labels, val_loss = predict(model, loaders["val"], device, amp=cfg.amp,
+        logits, labels, val_loss = predict(model, loaders["val"], prep, device, amp=cfg.amp,
                                            max_batches=cfg.max_eval_batches)
         val_time = time.perf_counter() - t1
         val = classification_metrics(labels, logits.argmax(1), len(class_names))
@@ -188,13 +199,13 @@ def train_run(paths, model_key, seed, variant="native", cfg: TrainConfig = Train
         if state["stopped_early"]:
             log(f"[{name}] early stop: no val-loss improvement for {cfg.patience} epochs")
 
-    return _finalise(rd, name, model, loaders, class_names, state, device, cfg, log)
+    return _finalise(rd, name, model, loaders, prep, class_names, state, device, cfg, log)
 
 
-def _finalise(rd, name, model, loaders, class_names, state, device, cfg, log):
+def _finalise(rd, name, model, loaders, prep, class_names, state, device, cfg, log):
     """Evaluate the best checkpoint on the test set once, save everything, mark the run DONE."""
     model.load_state_dict(storage.load_torch(rd / "best.pt"))
-    logits, labels, test_loss = predict(model, loaders["test"], device, amp=False,
+    logits, labels, test_loss = predict(model, loaders["test"], prep, device, amp=False,
                                         max_batches=cfg.max_eval_batches)
     preds = logits.argmax(1)
     test = classification_metrics(labels, preds, len(class_names))

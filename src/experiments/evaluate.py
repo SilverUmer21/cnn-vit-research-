@@ -13,8 +13,9 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, precision_recall_
 
 
 @torch.inference_mode()
-def predict(model, loader, device, amp=False, max_batches=None):
-    """Returns (logits float32 [N, C], labels int64 [N], mean cross-entropy loss)."""
+def predict(model, loader, prep, device, amp=False, max_batches=None):
+    """Returns (logits float32 [N, C], labels int64 [N], mean cross-entropy loss).
+    `prep` turns the loader's uint8 images into model input (data.Preprocess)."""
     model.eval()
     logits_all, labels_all = [], []
     loss_sum, n = 0.0, 0
@@ -22,7 +23,7 @@ def predict(model, loader, device, amp=False, max_batches=None):
     for i, (x, y) in enumerate(loader):
         if max_batches is not None and i >= max_batches:
             break
-        x = x.to(device, non_blocking=True)
+        x = prep(x.to(device, non_blocking=True), train=False)
         y = y.to(device, non_blocking=True)
         with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=use_amp):
             logits = model(x)
