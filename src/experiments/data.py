@@ -1,85 +1,119 @@
-"""Data loaders built on Member 1's manifest, dataset class and image recipes.
+"""Data loading built on Member 1's manifest and image recipes.
 
-What this adds on top of ``src.dataset.datasets.make_loader``:
-- worker processes, pinned memory and prefetching (the default loader uses 0 workers, which
-  starves the GPU on Colab);
-- shuffling and augmentation that depend only on (seed, epoch), so a run resumed after a Colab
-  disconnect sees exactly the batches it would have seen without the disconnect;
-- the ImageNet-normalisation variant used only for the preprocessing ablation (E6);
-- a test-set dataset with deterministic image corruptions for the robustness test (E5).
+Speed: Colab's free tier has 2 CPU cores, which cannot run augmentation and resizing fast enough
+for the GPU (about 160 images/s). So the workers only decode JPEGs into uint8 tensors, and the
+recipe (the same augmentation, resize, scaling, normalisation and channel order as
+src/dataset/preprocessing.py) runs on the GPU in `Preprocess`. tests/test_preprocess.py checks it
+against Member 1's CPU recipe.
+
+Reproducibility: shuffling depends only on (seed, epoch) and augmentation draws from the global
+torch RNG, which the trainer re-seeds every epoch, so a resumed run sees the same batches.
 """
 from __future__ import annotations
 
 import io
 
 import numpy as np
+import pandas as pd
 import torch
 from PIL import Image, ImageEnhance, ImageFilter
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import InterpolationMode, v2
 
-from src.dataset.datasets import PlantVillageDataset, _seed_worker
-from src.dataset.preprocessing import SPECS, augmentation, build_transform
+from src.dataset.datasets import _seed_worker
+from src.dataset.preprocessing import SPECS, augmentation
 
 from .config import IMAGENET_MEAN, IMAGENET_STD
 
+IMAGE_SIZE = 256   # every PlantVillage image is 256 x 256 (reports/audit.md)
+
 
 # ---------------------------------------------------------------------------------------------
-# transforms
+# dataset: decoded uint8 images
 # ---------------------------------------------------------------------------------------------
-def make_transform(model_key: str, train: bool, variant: str = "native"):
-    """`native` is Member 1's recipe, unchanged. `imagenet` keeps the same augmentation, size and
-    resize, but uses RGB and the ImageNet mean/std written in the original proposal."""
-    if variant == "native":
-        return build_transform(model_key, train)
-    if variant != "imagenet":
-        raise ValueError(f"unknown preprocessing variant {variant!r}")
-    size = SPECS[model_key]["size"]
-    steps = augmentation() if train else []
-    steps += [
-        v2.Resize((size, size), interpolation=InterpolationMode.BILINEAR, antialias=True),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
-    ]
-    return v2.Compose(steps)
+def load_uint8(path) -> torch.Tensor:
+    with Image.open(path) as im:
+        im = im.convert("RGB")
+    if im.size != (IMAGE_SIZE, IMAGE_SIZE):
+        im = im.resize((IMAGE_SIZE, IMAGE_SIZE), Image.BILINEAR)
+    return torch.from_numpy(np.asarray(im).copy()).permute(2, 0, 1)   # 3 x H x W, uint8, RGB
 
 
-def to_display(x: torch.Tensor, model_key: str, variant: str = "native") -> np.ndarray:
-    """Undo the model's normalisation/channel order: CHW tensor -> HWC RGB float array in [0, 1]."""
-    x = x.detach().float().cpu().clone()
-    if variant == "imagenet":
-        x = x * torch.tensor(IMAGENET_STD)[:, None, None] + torch.tensor(IMAGENET_MEAN)[:, None, None]
-    else:
+class ImageDataset(Dataset):
+    """Same rows, labels and class numbering as src.dataset.datasets.PlantVillageDataset."""
+
+    def __init__(self, manifest_csv, data_root, split):
+        from pathlib import Path
+        m = pd.read_csv(manifest_csv)
+        self.classes = sorted(m["label"].unique())
+        index = {c: i for i, c in enumerate(self.classes)}
+        rows = m[m["split"] == split]
+        self.root = Path(data_root)
+        self.paths = rows["path"].tolist()
+        self.labels = [index[c] for c in rows["label"]]
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, i):
+        return load_uint8(self.root / self.paths[i]), self.labels[i]
+
+
+# ---------------------------------------------------------------------------------------------
+# the model recipe, on the GPU
+# ---------------------------------------------------------------------------------------------
+class Preprocess(nn.Module):
+    """uint8 RGB batch [B, 3, 256, 256] -> model input. `native` is Member 1's recipe; `imagenet`
+    (ablation only) uses RGB and the ImageNet mean/std from the original proposal."""
+
+    def __init__(self, model_key: str, variant: str = "native"):
+        super().__init__()
         spec = SPECS[model_key]
-        if spec["bgr"]:
-            x = x.flip(0)
-        if spec["mean"] is not None:
-            x = x * torch.tensor(spec["std"])[:, None, None] + torch.tensor(spec["mean"])[:, None, None]
-    return x.clamp(0, 1).permute(1, 2, 0).numpy()
+        self.size = spec["size"]
+        if variant == "native":
+            mean, std, self.bgr = spec["mean"], spec["std"], spec["bgr"]
+        elif variant == "imagenet":
+            mean, std, self.bgr = IMAGENET_MEAN, IMAGENET_STD, False
+        else:
+            raise ValueError(f"unknown preprocessing variant {variant!r}")
+        self.normalize = mean is not None
+        self.register_buffer("mean", torch.tensor(mean or (0.0, 0.0, 0.0)).view(1, 3, 1, 1))
+        self.register_buffer("std", torch.tensor(std or (1.0, 1.0, 1.0)).view(1, 3, 1, 1))
+        self.augment = v2.Compose(augmentation())   # flip, rotation +-15, brightness/contrast 0.2
+
+    @torch.no_grad()
+    def forward(self, x: torch.Tensor, train: bool) -> torch.Tensor:
+        if train:
+            # per image, so every image gets its own random parameters
+            x = torch.stack([self.augment(img) for img in x])
+        x = x.float()
+        if x.shape[-1] != self.size:
+            x = v2.functional.resize(x, [self.size, self.size], interpolation=InterpolationMode.BILINEAR,
+                                     antialias=True).round_().clamp_(0, 255)   # uint8 levels, as on the CPU
+        x = x / 255.0
+        if self.normalize:
+            x = (x - self.mean.to(x.device)) / self.std.to(x.device)
+        if self.bgr:
+            x = x.flip(1)
+        return x.contiguous()
 
 
 # ---------------------------------------------------------------------------------------------
 # loaders
 # ---------------------------------------------------------------------------------------------
 class EpochSeededLoader:
-    """Wraps a DataLoader so that `loader.set_epoch(e)` fixes the shuffle order AND the
-    per-worker augmentation seeds for epoch `e`.
+    """`loader.set_epoch(e)` fixes the shuffle order (and worker seeds) of epoch `e`, so a resumed
+    run repeats exactly the epochs an uninterrupted run would have seen."""
 
-    PyTorch draws both the sampler permutation and the workers' base seed from the DataLoader's
-    generator when an iterator is created, so re-seeding that generator at the start of every
-    epoch makes epoch `e` identical whether or not the run was interrupted before it. Workers are
-    not persistent for the same reason (they would keep their first seed)."""
-
-    def __init__(self, dataset, batch_size, shuffle, seed, num_workers, pin_memory, prefetch_factor,
-                 drop_last=False):
+    def __init__(self, dataset, batch_size, shuffle, seed, num_workers, pin_memory, prefetch_factor):
         self.seed = seed
         self.generator = torch.Generator()
         kwargs = dict(batch_size=batch_size, shuffle=shuffle, num_workers=num_workers,
-                      pin_memory=pin_memory, generator=self.generator, worker_init_fn=_seed_worker,
-                      drop_last=drop_last)
+                      pin_memory=pin_memory, generator=self.generator, worker_init_fn=_seed_worker)
         if num_workers > 0:
             kwargs["prefetch_factor"] = prefetch_factor
+            kwargs["persistent_workers"] = False
         self.loader = DataLoader(dataset, **kwargs)
         self.set_epoch(0)
 
@@ -97,16 +131,15 @@ class EpochSeededLoader:
         return len(self.loader)
 
 
-def make_loaders(paths, model_key, cfg, seed, variant="native", device="cuda"):
-    """Train/val/test loaders for one run. Same manifest and split for every run."""
-    pin = device == "cuda"
+def make_loaders(paths, cfg, seed, device="cuda"):
+    """Train/val/test loaders of uint8 images. Same manifest and split for every run."""
     out = {}
     for split in ("train", "val", "test"):
         train = split == "train"
-        ds = PlantVillageDataset(paths.manifest, paths.data_root, split, make_transform(model_key, train, variant))
         out[split] = EpochSeededLoader(
-            ds, cfg.batch_size if train else cfg.eval_batch_size, shuffle=train, seed=seed,
-            num_workers=cfg.num_workers, pin_memory=pin, prefetch_factor=cfg.prefetch_factor)
+            ImageDataset(paths.manifest, paths.data_root, split),
+            cfg.batch_size if train else cfg.eval_batch_size, shuffle=train, seed=seed,
+            num_workers=cfg.num_workers, pin_memory=(device == "cuda"), prefetch_factor=cfg.prefetch_factor)
     return out
 
 
@@ -153,22 +186,16 @@ def corrupt(image: Image.Image, kind: str, severity: int, rng: np.random.Generat
     raise ValueError(f"unknown corruption {kind!r}")
 
 
-class CorruptedMultiModelDataset(Dataset):
-    """Test images, corrupted once, then prepared for every model's recipe. All models therefore
-    see exactly the same corrupted pixels; noise depends only on the image index."""
+class CorruptedDataset(ImageDataset):
+    """Test images after one corruption. Noise depends only on the image index, so every model
+    sees exactly the same corrupted pixels."""
 
-    def __init__(self, manifest_csv, data_root, kind, severity, model_keys, split="test", seed=0):
-        base = PlantVillageDataset(manifest_csv, data_root, split, transform=None)
-        self.root, self.paths, self.labels, self.classes = base.root, base.paths, base.labels, base.classes
+    def __init__(self, manifest_csv, data_root, kind, severity, split="test", seed=0):
+        super().__init__(manifest_csv, data_root, split)
         self.kind, self.severity, self.seed = kind, severity, seed
-        self.transforms = {k: build_transform(k, train=False) for k in model_keys}
-
-    def __len__(self):
-        return len(self.paths)
 
     def __getitem__(self, i):
         with Image.open(self.root / self.paths[i]) as im:
             im = im.convert("RGB")
-        rng = np.random.default_rng([self.seed, i])
-        im = corrupt(im, self.kind, self.severity, rng)
-        return {k: t(im) for k, t in self.transforms.items()}, self.labels[i]
+        im = corrupt(im, self.kind, self.severity, np.random.default_rng([self.seed, i]))
+        return torch.from_numpy(np.asarray(im).copy()).permute(2, 0, 1), self.labels[i]
