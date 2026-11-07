@@ -20,9 +20,10 @@ def dataset_split(manifest: pd.DataFrame):
                      f"{m.groupby('label').size().min()}--{m.groupby('label').size().max()}"])
     rows.append(["Total", f"{n:,}".replace(",", "{,}"), "100.0",
                  f"{manifest['group_id'].nunique():,}".replace(",", "{,}"), ""])
-    return latex_table(["Split", "Images", "Share (\\%)", "Duplicate groups", "Images per class"], rows,
+    return latex_table(["Split", "Images", "Share (\\%)", "Groups", "Per class"], rows,
                        "Dataset split used by every experiment (stratified by class, near-duplicate "
-                       "groups kept within one split).", "tab:split")
+                       "groups kept within one split). Groups: images after merging duplicates; per class: "
+                       "smallest and largest class.", "tab:split")
 
 
 def main_results(main: pd.DataFrame, n_test=5431):
@@ -35,21 +36,23 @@ def main_results(main: pd.DataFrame, n_test=5431):
         rows.append(cells)
     seeds = int(main["seeds"].min())
     return latex_table(
-        ["Model"] + [f"{n} (\\%)" for _, n in METRICS] + [f"Errors (of {n_test:,})".replace(",", "{,}")],
+        ["Model", "Accuracy (\\%)", "Precision (\\%)", "Recall (\\%)", "F1 (\\%)",
+         f"Errors (of {n_test:,})".replace(",", "{,}")],
         rows,
         f"Test-set classification performance (E1), mean $\\pm$ standard deviation over {seeds} "
-        "training seeds. Best mean per column in bold.", "tab:main", wide=True)
+        "training seeds. Precision, recall and F1 are macro-averaged over the 38 classes. "
+        "Best mean per column in bold.", "tab:main", wide=True)
 
 
 def per_seed(per_seed_df: pd.DataFrame, max_epochs=10, patience=5):
     rows = [[display(r["model"]), str(r["seed"]), f"{100 * r['accuracy']:.2f}", f"{100 * r['macro_f1']:.2f}",
              str(int(r["errors"])), str(int(r["best_epoch"])), str(int(r["epochs_run"]))]
             for _, r in per_seed_df.iterrows()]
-    return latex_table(["Model", "Seed", "Accuracy (\\%)", "Macro F1 (\\%)", "Errors", "Best epoch",
-                        "Epochs run"], rows,
+    return latex_table(["Model", "Seed", "Acc. (\\%)", "F1 (\\%)", "Errors", "Best ep.", "Epochs"], rows,
                        "Test results of every training run. Best epoch = epoch with the lowest validation "
                        f"loss (its weights are evaluated); training stops after {patience} epochs without "
-                       f"improvement or at {max_epochs} epochs.", "tab:perseed")
+                       f"improvement or at {max_epochs} epochs.", "tab:perseed", size="\\scriptsize",
+                       tabcolsep="3pt")
 
 
 def statistics(stats: pd.DataFrame):
@@ -139,10 +142,11 @@ def per_class(pc: pd.DataFrame, top=None):
     rows = [[tex_escape(class_label(r["class"])), str(int(r["support"])),
              f"{100 * r[f'f1_{a}']:.2f}", f"{100 * r[f'f1_{b}']:.2f}", f"{100 * r['diff']:+.2f}"]
             for _, r in pc.iterrows()]
-    return latex_table(["Class", "Test images", "F1 MNv2 (\\%)", "F1 MViT (\\%)", "$\\Delta$ (pp)"], rows,
+    return latex_table(["Class", "$n$", "F1 MNv2", "F1 MViT", "$\\Delta$ (pp)"], rows,
                        "Per-class test F1 (mean over seeds), sorted by the difference MobileViT-XS minus "
                        "MobileNetV2. Classes with fewer than 40 test images are noisy: one error moves F1 by "
-                       "several points.", "tab:perclass", align="lrrrr", size="\\scriptsize")
+                       "several points. $n$: test images; F1 in \\%.", "tab:perclass",
+                       align="P{0.44\\columnwidth}rrrr", size="\\scriptsize", tabcolsep="3pt")
 
 
 def top_confusions(tc: pd.DataFrame):
@@ -171,7 +175,7 @@ def robustness(summary: pd.DataFrame, clean: dict):
     return latex_table(["Corruption", "Acc. MNv2 (\\%)", "Acc. MViT (\\%)", "Drop MNv2 (pp)", "Drop MViT (pp)"],
                        rows, "Robustness test (E5): test accuracy under synthetic image corruptions, averaged "
                        "over three severities, mean $\\pm$ std over seeds; drop = clean minus corrupted accuracy.",
-                       "tab:robust")
+                       "tab:robust", wide=True)
 
 
 def ablation(ab: pd.DataFrame):
