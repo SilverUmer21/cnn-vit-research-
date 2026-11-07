@@ -231,11 +231,15 @@ def class_label(name: str) -> str:
     return f"{crop}: {disease}"
 
 
-def latex_table(header, rows, caption, label, align=None, note=None, wide=False, size="\\footnotesize"):
+def latex_table(header, rows, caption, label, align=None, note=None, wide=False, size="\\footnotesize",
+                tabcolsep=None):
     """Booktabs table. `rows` are lists of already-formatted cell strings."""
     env = "table*" if wide else "table"
     align = align or ("l" + "c" * (len(header) - 1))
-    lines = [f"\\begin{{{env}}}[!t]", "\\centering", size,
+    lines = [f"\\begin{{{env}}}[!t]", "\\centering", size]
+    if tabcolsep:
+        lines.append(f"\\setlength{{\\tabcolsep}}{{{tabcolsep}}}")
+    lines += [
              f"\\caption{{{caption}}}", f"\\label{{{label}}}",
              f"\\begin{{tabular}}{{{align}}}", "\\toprule",
              " & ".join(header) + " \\\\", "\\midrule"]
