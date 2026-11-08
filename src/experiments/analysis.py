@@ -140,6 +140,8 @@ def tradeoff(main, dep):
                        ("gmacs", "MACs"), ("gpu_ms", "GPU latency (FP32, bs 1)"),
                        ("gpu16_ms", "GPU latency (FP16, bs 1)"), ("cpu1_ms", "CPU latency (1 thread)"),
                        ("cpuall_ms", "CPU latency (all threads)"), ("throughput", "GPU throughput")]:
+        if col == "cpuall_ms" and "cpu_threads_all" in D.columns and D["cpu_threads_all"].max() <= 1:
+            continue   # same measurement as the single-thread one
         if col in D.columns and pd.notna(D.at[a, col]):
             rows.append((label, D.at[b, col] / D.at[a, col], "ratio"))
     return pd.DataFrame(rows, columns=["quantity", "mobilevit_vs_mobilenetv2", "kind"])

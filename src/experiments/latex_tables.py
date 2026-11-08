@@ -90,9 +90,13 @@ def training_cost(cost: pd.DataFrame):
 
 def deployability(dep: pd.DataFrame):
     has_gpu = "gpu_ms" in dep.columns
-    header = ["Model", "Input", "Params (M)", "Size (MB)", "GMACs", "CPU 1 thr. (ms)", "CPU all thr. (ms)"]
+    # with a single physical core the "all threads" run repeats the single-thread one, so drop it
+    multi = int(dep["cpu_threads_all"].max()) > 1
+    header = ["Model", "Input", "Params (M)", "Size (MB)", "GMACs", "CPU (ms)"]
+    if multi:
+        header.append("CPU all thr. (ms)")
     if has_gpu:
-        header += ["GPU FP32 (ms)", "GPU FP16 (ms)", "GPU img/s", "GPU mem. (MiB)"]
+        header += ["GPU FP32 (ms)", "GPU FP16 (ms)", "GPU img/s", "Mem. (MiB)"]
     low = {c: dep[c].min() for c in ("params_m", "size_mb_fp32", "gmacs", "cpu1_ms", "cpuall_ms",
                                      "gpu_ms", "gpu16_ms", "mem_bs1_mib") if c in dep}
     high_tp = dep["throughput"].max() if has_gpu else None
@@ -105,8 +109,9 @@ def deployability(dep: pd.DataFrame):
         cells = [display(r["model"]), f"{r['input']}$^2$", b(r["params_m"], "params_m", f"{r['params_m']:.2f}"),
                  b(r["size_mb_fp32"], "size_mb_fp32", f"{r['size_mb_fp32']:.2f}"),
                  b(r["gmacs"], "gmacs", f"{r['gmacs']:.3f}"),
-                 b(r["cpu1_ms"], "cpu1_ms", pm(r["cpu1_ms"], r["cpu1_std"], 1)),
-                 b(r["cpuall_ms"], "cpuall_ms", pm(r["cpuall_ms"], r["cpuall_std"], 1))]
+                 b(r["cpu1_ms"], "cpu1_ms", pm(r["cpu1_ms"], r["cpu1_std"], 1))]
+        if multi:
+            cells.append(b(r["cpuall_ms"], "cpuall_ms", pm(r["cpuall_ms"], r["cpuall_std"], 1)))
         if has_gpu:
             cells += [b(r["gpu_ms"], "gpu_ms", pm(r["gpu_ms"], r["gpu_std"], 2)),
                       b(r["gpu16_ms"], "gpu16_ms", pm(r["gpu16_ms"], r["gpu16_std"], 2)),
@@ -114,13 +119,15 @@ def deployability(dep: pd.DataFrame):
                       b(r["mem_bs1_mib"], "mem_bs1_mib", f"{r['mem_bs1_mib']:.1f}")]
         rows.append(cells)
     hw = f" on an NVIDIA {tex_escape(dep['gpu_name'].iloc[0])}" if has_gpu else ""
+    cpu = (f"CPU on the same machine ({int(dep['cpu_threads_all'].max())} threads for ``all'')" if multi else
+           "CPU on the same machine, which exposes one physical core, so one thread was used")
     note = ("Latency: batch size 1, mean $\\pm$ std of 100 timed forward passes after 10 warm-up passes, "
-            f"preprocessing excluded{hw}; CPU on the same machine "
-            f"({int(dep['cpu_threads_all'].iloc[0])} threads for ``all''). Size: saved FP32 weights. "
+            f"preprocessing excluded{hw}; {cpu}. GPU FP16 uses automatic mixed precision. "
+            "Size: saved FP32 weights. "
             "MACs: one forward pass of one image at the model's input size (FLOPs = 2 $\\times$ MACs). "
-            "Throughput: batch 32, FP32. GPU memory: peak extra memory for one image. Best value in bold.")
+            "Throughput: batch 32, FP32. Mem.: peak extra GPU memory for one image. Best value in bold.")
     return latex_table(header, rows, "Deployability of the two models (E2).", "tab:deploy",
-                       wide=True, note=note)
+                       wide=True, note=note, tabcolsep="4pt")
 
 
 def tradeoff(tr: pd.DataFrame):

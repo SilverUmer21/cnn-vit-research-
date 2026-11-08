@@ -1,0 +1,20 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Robustness test (E5): test accuracy under synthetic image corruptions, averaged over three severities, mean $\pm$ std over seeds; drop = clean minus corrupted accuracy.}
+\label{tab:robust}
+\begin{tabular}{lcccc}
+\toprule
+Corruption & Acc. MNv2 (\%) & Acc. MViT (\%) & Drop MNv2 (pp) & Drop MViT (pp) \\
+\midrule
+Clean & 99.47 $\pm$ 0.06 & 99.68 $\pm$ 0.02 & -- & -- \\
+Gaussian blur & 71.69 $\pm$ 3.07 & 67.40 $\pm$ 5.79 & 27.78 & 32.28 \\
+Gaussian noise & 51.08 $\pm$ 8.58 & 57.31 $\pm$ 5.25 & 48.39 & 42.37 \\
+Jpeg & 67.71 $\pm$ 3.29 & 59.98 $\pm$ 3.22 & 31.76 & 39.70 \\
+Low brightness & 95.96 $\pm$ 3.56 & 99.10 $\pm$ 0.17 & 3.51 & 0.58 \\
+Low contrast & 96.35 $\pm$ 2.34 & 98.22 $\pm$ 0.22 & 3.12 & 1.46 \\
+Low resolution & 62.31 $\pm$ 3.97 & 61.85 $\pm$ 7.46 & 37.16 & 37.83 \\
+Mean over corruptions & 74.18 & 73.98 & 25.29 & 25.70 \\
+\bottomrule
+\end{tabular}
+\end{table*}
