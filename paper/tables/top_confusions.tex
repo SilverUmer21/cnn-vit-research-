@@ -1,0 +1,28 @@
+\begin{table*}[!t]
+\centering
+\scriptsize
+\caption{Most frequent confusions on the test set (mean count per training run).}
+\label{tab:confusions}
+\begin{tabular}{lllrr}
+\toprule
+Model & True class & Predicted as & Errors / run & Class size \\
+\midrule
+MobileNetV2 & Corn: Northern Leaf Blight & Corn: Cercospora leaf spot Gray leaf spot & 7.3 & 99 \\
+MobileNetV2 & Tomato: Early blight & Tomato: Late blight & 3.7 & 100 \\
+MobileNetV2 & Tomato: Target Spot & Tomato: Spider mites Two-spotted spider mite & 2.7 & 140 \\
+MobileNetV2 & Corn: Cercospora leaf spot Gray leaf spot & Corn: Northern Leaf Blight & 2.0 & 51 \\
+MobileNetV2 & Tomato: Septoria leaf spot & Tomato: Bacterial spot & 1.7 & 177 \\
+MobileNetV2 & Grape: Black rot & Grape: Esca (Black Measles) & 1.3 & 118 \\
+MobileNetV2 & Cherry: healthy & Potato: healthy & 1.0 & 85 \\
+MobileNetV2 & Tomato: Early blight & Tomato: Target Spot & 1.0 & 100 \\
+MobileViT-XS & Corn: Northern Leaf Blight & Corn: Cercospora leaf spot Gray leaf spot & 5.0 & 99 \\
+MobileViT-XS & Tomato: Early blight & Tomato: Late blight & 2.0 & 100 \\
+MobileViT-XS & Corn: Cercospora leaf spot Gray leaf spot & Corn: Northern Leaf Blight & 2.0 & 51 \\
+MobileViT-XS & Tomato: Late blight & Tomato: Early blight & 1.7 & 191 \\
+MobileViT-XS & Tomato: Bacterial spot & Tomato: Tomato Yellow Leaf Curl Virus & 1.0 & 213 \\
+MobileViT-XS & Cherry: healthy & Potato: healthy & 1.0 & 85 \\
+MobileViT-XS & Tomato: Septoria leaf spot & Strawberry: Leaf scorch & 0.7 & 177 \\
+MobileViT-XS & Tomato: Target Spot & Tomato: Early blight & 0.7 & 140 \\
+\bottomrule
+\end{tabular}
+\end{table*}

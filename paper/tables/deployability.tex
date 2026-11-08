@@ -1,0 +1,16 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Deployability of the two models (E2).}
+\label{tab:deploy}
+\begin{tabular}{lccccccccc}
+\toprule
+Model & Input & Params (M) & Size (MB) & GMACs & CPU (ms) & GPU FP32 (ms) & GPU FP16 (ms) & GPU img/s & Mem. (MiB) \\
+\midrule
+MobileNetV2 & 224$^2$ & 2.27 & 9.33 & \textbf{0.300} & \textbf{42.2 $\pm$ 12.3} & \textbf{8.03 $\pm$ 1.24} & \textbf{9.50 $\pm$ 1.20} & \textbf{815} & \textbf{11.8} \\
+MobileViT-XS & 256$^2$ & \textbf{1.95} & \textbf{7.94} & 1.026 & 72.7 $\pm$ 12.8 & 13.18 $\pm$ 1.41 & 16.68 $\pm$ 4.85 & 425 & 19.8 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\parbox{\linewidth}{\scriptsize Latency: batch size 1, mean $\pm$ std of 100 timed forward passes after 10 warm-up passes, preprocessing excluded on an NVIDIA Tesla T4; CPU on the same machine, which exposes one physical core, so one thread was used. GPU FP16 uses automatic mixed precision. Size: saved FP32 weights. MACs: one forward pass of one image at the model's input size (FLOPs = 2 $\times$ MACs). Throughput: batch 32, FP32. Mem.: peak extra GPU memory for one image. Best value in bold.}
+\end{table*}

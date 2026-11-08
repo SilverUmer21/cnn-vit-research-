@@ -1,0 +1,21 @@
+\begin{table}[!t]
+\centering
+\footnotesize
+\caption{Accuracy gained versus cost added by MobileViT-XS (E3). Differences in percentage points (pp, mean over seeds); costs as ratios (values above 1 mean MobileViT-XS is larger or slower, except throughput where above 1 means faster).}
+\label{tab:tradeoff}
+\begin{tabular}{lc}
+\toprule
+Quantity & MobileViT-XS vs MobileNetV2 \\
+\midrule
+Accuracy (pp) & +0.21 pp \\
+Macro F1 (pp) & +0.29 pp \\
+Parameters & 0.86$\times$ \\
+File size (FP32) & 0.85$\times$ \\
+MACs & 3.42$\times$ \\
+GPU latency (FP32, bs 1) & 1.64$\times$ \\
+GPU latency (FP16, bs 1) & 1.76$\times$ \\
+CPU latency (1 thread) & 1.72$\times$ \\
+GPU throughput & 0.52$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
