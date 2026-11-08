@@ -1,0 +1,14 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Test-set classification performance (E1), mean $\pm$ standard deviation over 3 training seeds. Precision, recall and F1 are macro-averaged over the 38 classes. Best mean per column in bold.}
+\label{tab:main}
+\begin{tabular}{lccccc}
+\toprule
+Model & Accuracy (\%) & Precision (\%) & Recall (\%) & F1 (\%) & Errors (of 5{,}431) \\
+\midrule
+MobileNetV2 & 99.47 $\pm$ 0.06 & 99.10 $\pm$ 0.11 & 99.27 $\pm$ 0.07 & 99.17 $\pm$ 0.07 & 28.7 $\pm$ 3.2 \\
+MobileViT-XS & \textbf{99.68 $\pm$ 0.02} & \textbf{99.37 $\pm$ 0.02} & \textbf{99.55 $\pm$ 0.05} & \textbf{99.46 $\pm$ 0.03} & 17.3 $\pm$ 1.2 \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,51 @@
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Per-class test F1 (mean over seeds), sorted by the difference MobileViT-XS minus MobileNetV2. Classes with fewer than 40 test images are noisy: one error moves F1 by several points. $n$: test images; F1 in \%.}
+\label{tab:perclass}
+\begin{tabular}{P{0.44\columnwidth}rrrr}
+\toprule
+Class & $n$ & F1 MNv2 & F1 MViT & $\Delta$ (pp) \\
+\midrule
+Soybean: healthy & 509 & 100.00 & 99.97 & -0.03 \\
+Apple: Cedar apple rust & 27 & 100.00 & 100.00 & +0.00 \\
+Cherry: Powdery mildew & 105 & 100.00 & 100.00 & +0.00 \\
+Cherry: healthy & 85 & 99.41 & 99.41 & +0.00 \\
+Grape: Leaf blight (Isariopsis Leaf Spot) & 108 & 100.00 & 100.00 & +0.00 \\
+Grape: healthy & 42 & 100.00 & 100.00 & +0.00 \\
+Corn: healthy & 116 & 100.00 & 100.00 & +0.00 \\
+Blueberry: healthy & 150 & 100.00 & 100.00 & +0.00 \\
+Raspberry: healthy & 37 & 100.00 & 100.00 & +0.00 \\
+Squash: Powdery mildew & 184 & 100.00 & 100.00 & +0.00 \\
+Peach: healthy & 36 & 100.00 & 100.00 & +0.00 \\
+Corn: Common rust & 120 & 100.00 & 100.00 & +0.00 \\
+Tomato: Tomato mosaic virus & 37 & 100.00 & 100.00 & +0.00 \\
+Strawberry: Leaf scorch & 111 & 99.70 & 99.70 & +0.00 \\
+Orange: Haunglongbing (Citrus greening) & 551 & 99.97 & 100.00 & +0.03 \\
+Tomato: Tomato Yellow Leaf Curl Virus & 536 & 99.84 & 99.88 & +0.03 \\
+Tomato: Early blight & 100 & 97.26 & 97.33 & +0.07 \\
+Peach: Bacterial spot & 229 & 99.85 & 99.93 & +0.07 \\
+Tomato: Late blight & 191 & 98.88 & 98.95 & +0.08 \\
+Apple: healthy & 164 & 99.80 & 99.90 & +0.10 \\
+Tomato: healthy & 160 & 99.90 & 100.00 & +0.10 \\
+Pepper bell: healthy & 148 & 99.89 & 100.00 & +0.11 \\
+Pepper bell: Bacterial spot & 100 & 99.83 & 100.00 & +0.17 \\
+Tomato: Leaf Mold & 96 & 99.65 & 99.83 & +0.18 \\
+Apple: Apple scab & 63 & 99.46 & 99.73 & +0.27 \\
+Apple: Black rot & 62 & 99.73 & 100.00 & +0.27 \\
+Potato: Late blight & 100 & 99.50 & 99.83 & +0.33 \\
+Strawberry: healthy & 45 & 99.63 & 100.00 & +0.37 \\
+Tomato: Bacterial spot & 213 & 99.22 & 99.61 & +0.39 \\
+Grape: Esca (Black Measles) & 138 & 99.52 & 100.00 & +0.48 \\
+Grape: Black rot & 118 & 99.43 & 100.00 & +0.57 \\
+Tomato: Septoria leaf spot & 177 & 99.14 & 99.72 & +0.57 \\
+Potato: Early blight & 100 & 99.34 & 100.00 & +0.66 \\
+Tomato: Spider mites Two-spotted spider mite & 168 & 99.02 & 99.80 & +0.78 \\
+Tomato: Target Spot & 140 & 98.32 & 99.28 & +0.97 \\
+Potato: healthy & 15 & 95.77 & 96.77 & +1.01 \\
+Corn: Northern Leaf Blight & 99 & 94.99 & 96.41 & +1.42 \\
+Corn: Cercospora leaf spot Gray leaf spot & 51 & 91.30 & 93.33 & +2.03 \\
+\bottomrule
+\end{tabular}
+\end{table}

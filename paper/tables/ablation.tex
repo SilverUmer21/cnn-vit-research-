@@ -1,0 +1,14 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Preprocessing ablation (E6, seed 42): each model's own pretrained preprocessing (native) versus the ImageNet mean/std in RGB order stated in the original proposal. Values in \%; $\Delta$ in pp (ImageNet minus native).}
+\label{tab:ablation}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Acc. native & Acc. ImageNet & $\Delta$Acc & F1 native & F1 ImageNet & $\Delta$F1 \\
+\midrule
+MobileNetV2 & 99.54 & 99.45 & -0.09 & 99.24 & 99.10 & -0.14 \\
+MobileViT-XS & 99.67 & 99.65 & -0.02 & 99.43 & 99.40 & -0.03 \\
+\bottomrule
+\end{tabular}
+\end{table*}

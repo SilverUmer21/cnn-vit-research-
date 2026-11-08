@@ -3,3 +3,15 @@ data/
 __pycache__/
 .claude/
 CLAUDE.md
+notebooks/smoke_test.ipynb
+*.partial
+paper/*.aux
+paper/*.bbl
+paper/*.bcf
+paper/*.blg
+paper/*.log
+paper/*.run.xml
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/main.pdf

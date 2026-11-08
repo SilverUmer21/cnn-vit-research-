@@ -2,3 +2,8 @@ torch
 torchvision
 pillow
 pandas
+numpy
+scikit-learn
+scipy
+matplotlib
+transformers>=4.40

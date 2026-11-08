@@ -1,0 +1,19 @@
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Test results of every training run. Best epoch = epoch with the lowest validation loss (its weights are evaluated); training stops after 5 epochs without improvement or at 10 epochs.}
+\label{tab:perseed}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Seed & Acc. (\%) & F1 (\%) & Errors & Best ep. & Epochs \\
+\midrule
+MobileNetV2 & 42 & 99.54 & 99.24 & 25 & 9 & 10 \\
+MobileNetV2 & 43 & 99.45 & 99.17 & 30 & 6 & 10 \\
+MobileNetV2 & 44 & 99.43 & 99.09 & 31 & 8 & 10 \\
+MobileViT-XS & 42 & 99.67 & 99.43 & 18 & 10 & 10 \\
+MobileViT-XS & 43 & 99.71 & 99.50 & 16 & 10 & 10 \\
+MobileViT-XS & 44 & 99.67 & 99.44 & 18 & 9 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}

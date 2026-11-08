@@ -1,0 +1,793 @@
+
+%% bare_conf.tex
+%% V1.3
+%% 2007/01/11
+%% by Michael Shell
+%% See:
+%% http://www.michaelshell.org/
+%% for current contact information.
+%%
+%% This is a skeleton file demonstrating the use of IEEEtran.cls
+%% (requires IEEEtran.cls version 1.7 or later) with an IEEE conference paper.
+%%
+%% Support sites:
+%% http://www.michaelshell.org/tex/ieeetran/
+%% http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran/
+%% and
+%% http://www.ieee.org/
+
+%%*************************************************************************
+%% Legal Notice:
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%% In no event shall IEEE or any contributor to this code be liable for
+%% any damages or losses, including, but not limited to, incidental,
+%% consequential, or any other damages, resulting from the use or misuse
+%% of any information contained here.
+%%
+%% All comments are the opinions of their respective authors and are not
+%% necessarily endorsed by the IEEE.
+%%
+%% This work is distributed under the LaTeX Project Public License (LPPL)
+%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
+%% distributed and modified. A copy of the LPPL, version 1.3, is included
+%% in the base LaTeX documentation of all distributions of LaTeX released
+%% 2003/12/01 or later.
+%% Retain all contribution notices and credits.
+%% ** Modified files should be clearly indicated as such, including  **
+%% ** renaming them and changing author support contact information. **
+%%
+%% File list of work: IEEEtran.cls, IEEEtran_HOWTO.pdf, bare_adv.tex,
+%%                    bare_conf.tex, bare_jrnl.tex, bare_jrnl_compsoc.tex
+%%*************************************************************************
+
+% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
+% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
+% *** with production work. IEEE's font choices can trigger bugs that do  ***
+% *** not appear when using other class files.                            ***
+% The testflow support page is at:
+% http://www.michaelshell.org/tex/testflow/
+
+
+
+% Note that the a4paper option is mainly intended so that authors in
+% countries using A4 can easily print to A4 and see how their papers will
+% look in print - the typesetting of the document will not typically be
+% affected with changes in paper size (but the bottom and side margins will).
+% Use the testflow package mentioned above to verify correct handling of
+% both paper sizes by the user's LaTeX system.
+%
+% Also note that the "draftcls" or "draftclsnofoot", not "draft", option
+% should be used if it is desired that the figures are to be displayed in
+% draft mode.
+%
+\documentclass[conference]{IEEEtran}
+\usepackage{blindtext, graphicx}
+% Add the compsoc option for Computer Society conferences.
+\usepackage[style=numeric, sorting=none]{biblatex}
+ 
+%Import the bibliography file
+\addbibresource{ref.bib}
+
+
+% If IEEEtran.cls has not been installed into the LaTeX system files,
+% manually specify the path to it like:
+% \documentclass[conference]{../sty/IEEEtran}
+
+
+\graphicspath{ {fig/} }
+
+
+% Some very useful LaTeX packages include:
+% (uncomment the ones you want to load)
+
+
+% *** MISC UTILITY PACKAGES ***
+%
+%\usepackage{ifpdf}
+% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
+% compilation based on whether the output is pdf or dvi.
+% usage:
+% \ifpdf
+%   % pdf code
+% \else
+%   % dvi code
+% \fi
+% The latest version of ifpdf.sty can be obtained from:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/oberdiek/
+% Also, note that IEEEtran.cls V1.7 and later provides a builtin
+% \ifCLASSINFOpdf conditional that works the same way.
+% When switching from latex to pdflatex and vice-versa, the compiler may
+% have to be run twice to clear warning/error messages.
+
+
+
+
+
+
+% *** CITATION PACKAGES ***
+%
+%\usepackage{cite}
+% cite.sty was written by Donald Arseneau
+% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
+% \cite{} output to follow that of IEEE. Loading the cite package will
+% result in citation numbers being automatically sorted and properly
+% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
+% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
+% \cite will automatically add leading space, if needed. Use cite.sty's
+% noadjust option (cite.sty V3.8 and later) if you want to turn this off.
+% cite.sty is already installed on most LaTeX systems. Be sure and use
+% version 4.0 (2003-05-27) and later if using hyperref.sty. cite.sty does
+% not currently provide for hyperlinked citations.
+% The latest version can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/cite/
+% The documentation is contained in the cite.sty file itself.
+
+
+
+
+
+
+% *** GRAPHICS RELATED PACKAGES ***
+%
+\ifCLASSINFOpdf
+  % \usepackage[pdftex]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../pdf/}{../jpeg/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\else
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
+  % will default to the driver specified in the system graphics.cfg if no
+  % driver is specified.
+  % \usepackage[dvips]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../eps/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.eps}
+\fi
+% graphicx was written by David Carlisle and Sebastian Rahtz. It is
+% required if you want graphics, photos, etc. graphicx.sty is already
+% installed on most LaTeX systems. The latest version and documentation can
+% be obtained at: 
+% http://www.ctan.org/tex-archive/macros/latex/required/graphics/
+% Another good source of documentation is "Using Imported Graphics in
+% LaTeX2e" by Keith Reckdahl which can be found as epslatex.ps or
+% epslatex.pdf at: http://www.ctan.org/tex-archive/info/
+%
+% latex, and pdflatex in dvi mode, support graphics in encapsulated
+% postscript (.eps) format. pdflatex in pdf mode supports graphics
+% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
+% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
+% not a bitmapped formats (.jpeg, .png). IEEE frowns on bitmapped formats
+% which can result in "jaggedy"/blurry rendering of lines and letters as
+% well as large increases in file sizes.
+%
+% You can find documentation about the pdfTeX application at:
+% http://www.tug.org/applications/pdftex
+
+
+
+
+
+% *** MATH PACKAGES ***
+%
+%\usepackage[cmex10]{amsmath}
+% A popular package from the American Mathematical Society that provides
+% many useful and powerful commands for dealing with mathematics. If using
+% it, be sure to load this package with the cmex10 option to ensure that
+% only type 1 fonts will utilized at all point sizes. Without this option,
+% it is possible that some math symbols, particularly those within
+% footnotes, will be rendered in bitmap form which will result in a
+% document that can not be IEEE Xplore compliant!
+%
+% Also, note that the amsmath package sets \interdisplaylinepenalty to 10000
+% thus preventing page breaks from occurring within multiline equations. Use:
+%\interdisplaylinepenalty=2500
+% after loading amsmath to restore such page breaks as IEEEtran.cls normally
+% does. amsmath.sty is already installed on most LaTeX systems. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/required/amslatex/math/
+
+
+
+
+
+% *** SPECIALIZED LIST PACKAGES ***
+%
+%\usepackage{algorithmic}
+% algorithmic.sty was written by Peter Williams and Rogerio Brito.
+% This package provides an algorithmic environment fo describing algorithms.
+% You can use the algorithmic environment in-text or within a figure
+% environment to provide for a floating algorithm. Do NOT use the algorithm
+% floating environment provided by algorithm.sty (by the same authors) or
+% algorithm2e.sty (by Christophe Fiorio) as IEEE does not use dedicated
+% algorithm float types and packages that provide these will not provide
+% correct IEEE style captions. The latest version and documentation of
+% algorithmic.sty can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/algorithms/
+% There is also a support site at:
+% http://algorithms.berlios.de/index.html
+% Also of interest may be the (relatively newer and more customizable)
+% algorithmicx.sty package by Szasz Janos:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/algorithmicx/
+
+
+
+
+% *** ALIGNMENT PACKAGES ***
+%
+%\usepackage{array}
+\usepackage{placeins}
+% Frank Mittelbach's and David Carlisle's array.sty patches and improves
+% the standard LaTeX2e array and tabular environments to provide better
+% appearance and additional user controls. As the default LaTeX2e table
+% generation code is lacking to the point of almost being broken with
+% respect to the quality of the end results, all users are strongly
+% advised to use an enhanced (at the very least that provided by array.sty)
+% set of table tools. array.sty is already installed on most systems. The
+% latest version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/required/tools/
+
+
+%\usepackage{mdwmath}
+%\usepackage{mdwtab}
+% Also highly recommended is Mark Wooding's extremely powerful MDW tools,
+% especially mdwmath.sty and mdwtab.sty which are used to format equations
+% and tables, respectively. The MDWtools set is already installed on most
+% LaTeX systems. The lastest version and documentation is available at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/mdwtools/
+
+
+% IEEEtran contains the IEEEeqnarray family of commands that can be used to
+% generate multiline equations as well as matrices, tables, etc., of high
+% quality.
+
+
+%\usepackage{eqparbox}
+% Also of notable interest is Scott Pakin's eqparbox package for creating
+% (automatically sized) equal width boxes - aka "natural width parboxes".
+% Available at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/eqparbox/
+
+
+
+
+
+% *** SUBFIGURE PACKAGES ***
+%\usepackage[tight,footnotesize]{subfigure}
+% subfigure.sty was written by Steven Douglas Cochran. This package makes it
+% easy to put subfigures in your figures. e.g., "Figure 1a and 1b". For IEEE
+% work, it is a good idea to load it with the tight package option to reduce
+% the amount of white space around the subfigures. subfigure.sty is already
+% installed on most LaTeX systems. The latest version and documentation can
+% be obtained at:
+% http://www.ctan.org/tex-archive/obsolete/macros/latex/contrib/subfigure/
+% subfigure.sty has been superceeded by subfig.sty.
+
+
+
+%\usepackage[caption=false]{caption}
+%\usepackage[font=footnotesize]{subfig}
+% subfig.sty, also written by Steven Douglas Cochran, is the modern
+% replacement for subfigure.sty. However, subfig.sty requires and
+% automatically loads Axel Sommerfeldt's caption.sty which will override
+% IEEEtran.cls handling of captions and this will result in nonIEEE style
+% figure/table captions. To prevent this problem, be sure and preload
+% caption.sty with its "caption=false" package option. This is will preserve
+% IEEEtran.cls handing of captions. Version 1.3 (2005/06/28) and later 
+% (recommended due to many improvements over 1.2) of subfig.sty supports
+% the caption=false option directly:
+%\usepackage[caption=false,font=footnotesize]{subfig}
+%
+% The latest version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/subfig/
+% The latest version and documentation of caption.sty can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/caption/
+
+
+
+
+% *** FLOAT PACKAGES ***
+%
+%\usepackage{fixltx2e}
+% fixltx2e, the successor to the earlier fix2col.sty, was written by
+% Frank Mittelbach and David Carlisle. This package corrects a few problems
+% in the LaTeX2e kernel, the most notable of which is that in current
+% LaTeX2e releases, the ordering of single and double column floats is not
+% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
+% single column figure to be placed prior to an earlier double column
+% figure. The latest version and documentation can be found at:
+% http://www.ctan.org/tex-archive/macros/latex/base/
+
+
+
+%\usepackage{stfloats}
+% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
+% the ability to do double column floats at the bottom of the page as well
+% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
+% LaTeX2e). It also provides a command:
+%\fnbelowfloat
+% to enable the placement of footnotes below bottom floats (the standard
+% LaTeX2e kernel puts them above bottom floats). This is an invasive package
+% which rewrites many portions of the LaTeX2e float routines. It may not work
+% with other packages that modify the LaTeX2e float routines. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/sttools/
+% Documentation is contained in the stfloats.sty comments as well as in the
+% presfull.pdf file. Do not use the stfloats baselinefloat ability as IEEE
+% does not allow \baselineskip to stretch. Authors submitting work to the
+% IEEE should note that IEEE rarely uses double column equations and
+% that authors should try to avoid such use. Do not be tempted to use the
+% cuted.sty or midfloat.sty packages (also by Sigitas Tolusis) as IEEE does
+% not format its papers in such ways.
+
+
+
+
+
+% *** PDF, URL AND HYPERLINK PACKAGES ***
+%
+%\usepackage{url}
+% url.sty was written by Donald Arseneau. It provides better support for
+% handling and breaking URLs. url.sty is already installed on most LaTeX
+% systems. The latest version can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/misc/
+% Read the url.sty source comments for usage information. Basically,
+% \url{my_url_here}.
+
+
+
+
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+% There should be no need to do such things with IEEEtran.cls V1.6 and later.
+% (Unless specifically asked to do so by the journal or conference you plan
+% to submit to, of course. )
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% tables and figures are generated by notebooks/experiments.ipynb (results/tables, results/figures)
+\newcommand{\inputtable}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{%
+  \begin{table}[!t]\centering\fbox{\parbox{0.9\columnwidth}{\centering\small Table \texttt{\detokenize{#1}} (generated by the notebook)}}\end{table}}}
+\newcommand{\figbody}[2]{\IfFileExists{fig/#1.pdf}{\includegraphics[width=#2]{fig/#1.pdf}}{%
+  \fbox{\parbox[c][3cm][c]{0.9#2}{\centering\small Figure \texttt{\detokenize{#1}} (generated by the notebook)}}}}
+\newcommand{\fig}[3]{\begin{figure}[!t]\centering\figbody{#1}{\columnwidth}\caption{#2}\label{#3}\end{figure}}
+\newcommand{\figwide}[3]{\begin{figure*}[!t]\centering\figbody{#1}{\textwidth}\caption{#2}\label{#3}\end{figure*}}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\IEEEoverridecommandlockouts
+% (sample paper copyright footer removed)
+% \IEEEpubid{\makebox[\columnwidth]{979-8-3315-9262-2/25/\$31.00~\copyright~2025 IEEE \hfill}
+% \hspace{\columnsep}\makebox[\columnwidth]{}}
+
+
+\begin{document}
+%
+% ------------------------------------------------------------------
+% TITLE  (no author block, as requested)
+% ------------------------------------------------------------------
+\title{Hybrid CNN-ViT for Edge Devices: Accuracy vs.\ Deployability Trade-off in Plant Disease Classification}
+
+\author{}
+
+\maketitle
+\IEEEpeerreviewmaketitle
+
+\section{Literature Review}
+
+Table~\ref{tab:survey} surveys fifteen studies, twelve of which were published in 2021 or later (nine of them in 2023--2025), spanning the foundational CNN and ViT architectures used in this project (MobileNetV2, MobileViT / MobileViTv2, ShuffleNet V2, and the original ViT), the PlantVillage baseline literature, and recent hybrid CNN-ViT and lightweight-ViT approaches applied specifically to plant disease classification. For each study the table reports the method, dataset, evaluation metrics used, the headline performance score(s), and the key limitation(s) noted by the authors or evident from the reported evaluation.
+
+
+
+\begin{table*}[!p]
+\caption{Literature Survey Table}
+\label{tab:survey}
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{|P{0.087\textwidth}|c|P{0.189\textwidth}|P{0.133\textwidth}|P{0.097\textwidth}|P{0.174\textwidth}|P{0.199\textwidth}|}
+\hline
+\textbf{Reference} & \textbf{Year} & \textbf{Method} & \textbf{Dataset} & \textbf{Evaluation Metrics} & \textbf{Performance Scores} & \textbf{Key Limitations} \\
+\hline
+Dosovitskiy et al.~\cite{dosovitskiy2021vit} & 2021 & ViT: pure transformer encoder over 16$\times$16 image patches; no convolutional inductive bias; large-scale pretraining then fine-tuning & ImageNet-21k / JFT-300M, CIFAR-100, VTAB & Top-1 Accuracy & ViT-H/14 $\sim$88.55\% top-1 after JFT-300M pretraining; trained-from-scratch ViT-S/16 only 78.1\% (below CNN baselines) & Needs very large-scale pretraining data to be competitive; underperforms CNNs when trained from scratch on smaller datasets; no built-in spatial inductive bias \\
+\hline
+Sandler et al.~\cite{sandler2018mobilenetv2} & 2018 & MobileNetV2: inverted-residual blocks with linear bottlenecks and depthwise-separable convolutions & ImageNet, COCO, PASCAL VOC & Top-1 Accuracy, Params, MAdds (FLOPs) & 72.0\% top-1 on ImageNet with $\sim$3.4M parameters & Purely convolutional / local receptive field only; no global context modeling; accuracy plateaus below larger or hybrid models \\
+\hline
+Ma et al.~\cite{ma2018shufflenetv2} & 2018 & ShuffleNet V2: practical CNN design guidelines derived from measured on-device speed, not FLOPs alone & ImageNet & Top-1 Accuracy, Latency (ms), FLOPs & State-of-the-art speed-accuracy trade-off among CNNs at matched FLOPs on GPU and ARM platforms & Shows FLOPs is a poor latency proxy, but does not evaluate transformer or hybrid architectures at all; guidelines are platform-dependent \\
+\hline
+Mehta \& Rastegari~\cite{mehta2022mobilevit} & 2022 & MobileViT: hybrid CNN-ViT block that treats the transformer as a convolution; light-weight, mobile-friendly & ImageNet-1k, MS-COCO, PASCAL VOC & Top-1 Accuracy, Params, Latency & MobileViT-S: 78.4\% top-1 with $\sim$5.6--6M params, 3.2 pp above MobileNetV3 and 6.2 pp above DeiT at similar size & Despite low FLOPs, multi-headed self-attention still gives higher latency than pure CNNs of comparable parameter count \\
+\hline
+Mehta \& Rastegari~\cite{mehta2022mobilevitv2} & 2022 & MobileViTv2: separable self-attention (linear complexity) replacing multi-head attention to cut latency & ImageNet-1k, MS-COCO & Top-1 Accuracy, Latency, Params & Runs $\sim$3.2$\times$ faster than MobileViT on mobile hardware at comparable or better accuracy & Separable attention trades some of full multi-head attention's representational flexibility for the speed gain \\
+\hline
+Mohanty et al.~\cite{mohanty2016plant} & 2016 & Deep CNN (AlexNet / GoogLeNet, transfer learning) baseline; established PlantVillage as a benchmark & PlantVillage (54,306 images; 14 crops, 26 diseases) & Accuracy & 99.35\% accuracy on held-out PlantVillage test set & Images captured under controlled lab conditions with uniform backgrounds; accuracy drops substantially on field-collected images \\
+\hline
+Thakur et al.~\cite{thakur2023vitcnn} & 2023 & Hybrid CNN-ViT model fusing convolutional local features with transformer self-attention; Grad-CAM/LIME explainability & 5 public plant disease datasets & Accuracy, Precision, Recall, F1 & Reported to outperform 9 state-of-the-art transfer-learning models across all 5 datasets (per-dataset scores, not a single pooled figure) & No FLOPs / latency / model-size benchmarking against a lightweight CNN baseline; explainability analysis is qualitative \\
+\hline
+Li et al. (PMVT)~\cite{li2023pmvt} & 2023 & Plant-based MobileViT: inverted-residual 7$\times$7 conv block plus CBAM attention fused into the ViT encoder & PlantVillage, rice leaf, multiple field datasets & Accuracy, Params, Model size & 93.1\% accuracy on rice dataset, 3.4 pp above MobileNetV3 at similar size & Authors note lightweight ViTs remain slower than comparable lightweight CNNs at inference despite fewer parameters \\
+\hline
+Tonmoy et al.~\cite{tonmoy2025mobileplantvit} & 2025 & MobilePlantViT: ultra-lightweight hybrid ViT (0.69M params) for generalized plant disease classification & Multiple plant disease datasets (varying scale) & Test Accuracy, Parameter count & 0.69M parameters; 80--99\%+ test accuracy depending on dataset difficulty & Wide accuracy spread (as low as 80\%) shows generalization is strongly dataset-dependent; latency/FLOPs not reported \\
+\hline
+Karthikeyan et al.~\cite{karthikeyan2025cnnseeib} & 2025 & CNN-SEEIB: Squeeze-and-Excitation-enabled identity blocks embedded in a lightweight CNN backbone & PlantVillage (38 classes, 54,305 images) & Accuracy, Precision, Recall, F1, Inference time & 99.79\% accuracy, F1 = 0.9971, 64 ms/image inference; 97.77\% on an independent potato leaf dataset & Evaluated primarily on lab-condition PlantVillage images; no direct comparison against a ViT-based or hybrid baseline \\
+\hline
+Pal et al. (Mob-Res)~\cite{pal2025mobres} & 2025 & Mob-Res: MobileNetV2 backbone fused with parallel residual blocks; Grad-CAM-based interpretability & PlantVillage; Plant Disease Expert (58 classes) & Accuracy, Cross-domain validation & 99.47\% accuracy on PlantVillage; 97.73\% on the larger Plant Disease Expert dataset; 3.51M parameters & Still $\sim$5$\times$ larger than the smallest hybrid ViT surveyed (MobilePlantViT, 0.69M); no measured latency reported \\
+\hline
+Kumar et al.~\cite{kumar2025mobilefriendly} & 2025 & Head-to-head benchmark of MobileNetV2/V3 and EfficientNet-B0/B1 on combined field-realistic data & PlantDoc + PlantVillage + PlantWild (101 classes, 33 crops) & Accuracy, Params, Inference speed & Best model (EfficientNet-B1): 94.7\% accuracy & Accuracy far below lab-only benchmarks, indicating PlantVillage-only results elsewhere likely overstate real-world performance; no ViT/hybrid model included \\
+\hline
+Baek~\cite{baek2025multivit} & 2025 & Multi-ViT: attention-score-based ensemble of multiple ViT branches for multi-leaf disease diagnosis & Apple, grape and tomato leaf disease datasets & Accuracy, F1 & $>$99\% accuracy with significant F1 gains over ResNet, VGG and MobileNet baselines & Requires multiple leaf images and multiple ViT branches per prediction, increasing inference cost and memory versus a single-image backbone \\
+\hline
+Murugavalli \& Gopi (PLA-ViT)~\cite{murugavalli2025plavit} & 2025 & PLA-ViT: transfer-learned ViT with bilateral filtering, data augmentation and adaptive learning-rate scheduling & Multiple plant leaf disease datasets & Accuracy, Inference time, Computational complexity & Reported to outperform baseline CNN/GAN models on accuracy, localization, inference time and complexity (exact figures not disclosed in the openly available abstract) & Comparative performance numbers are not fully reported in the open-access summary, limiting direct benchmarking against this project's models \\
+\hline
+Aboelenin et al.~\cite{aboelenin2025hybrid} & 2025 & Hybrid framework: CNN ensemble (VGG16, Inception-V3, DenseNet) for global features + ViT for local features & Apple and corn leaf disease datasets (4 classes each) & Accuracy & 99.24\% accuracy (apple), 98\% accuracy (corn) & CNN ensemble + ViT fusion adds substantial architectural complexity and parameters; no inference-latency or FLOPs comparison reported \\
+\hline
+\end{tabular}
+\end{table*}
+
+\section{Critical Discussion of the Reviewed Literature}
+
+\subsection{Foundational efficiency-oriented CNN architectures}
+
+MobileNetV2~\cite{sandler2018mobilenetv2} and ShuffleNet V2~\cite{ma2018shufflenetv2} established the design principles this field still relies on: depthwise-separable and inverted-residual convolutions to cut FLOPs, and, in Ma et al.'s case, the empirical finding that FLOPs and real device latency diverge once memory-access cost and platform characteristics are taken into account. Neither paper touches vision transformers or agricultural data, so their contribution to this project is methodological: it justifies benchmarking MobileNetV2 on measured inference latency rather than FLOPs alone.
+
+\subsection{Foundational transformer and hybrid mobile architectures}
+
+ViT~\cite{dosovitskiy2021vit} established that pure self-attention can match CNN accuracy, but only with large-scale pretraining or heavy data augmentation; MobileViT~\cite{mehta2022mobilevit} and MobileViTv2~\cite{mehta2022mobilevitv2} are direct responses that graft self-attention onto a convolutional backbone specifically to make ViT-style global context viable at mobile parameter and latency budgets. Read together, these three papers trace a clear trajectory (from ``transformers need huge pretraining data'' to ``transformers need a hybrid convolutional front end'' to ``transformers need a cheaper attention operator'') that this project's choice of MobileViT sits at the end of.
+
+\subsection{PlantVillage-only CNN and hybrid results}
+
+Mohanty et al.~\cite{mohanty2016plant}, Karthikeyan et al.'s CNN-SEEIB~\cite{karthikeyan2025cnnseeib}, and Pal et al.'s Mob-Res~\cite{pal2025mobres} all report accuracy above 99\% on PlantVillage, a result that has been consistent across nearly a decade of publications and suggests the dataset itself, rather than the architecture, is now close to the accuracy ceiling. None of the three benchmarks a hybrid ViT baseline directly, and only CNN-SEEIB reports measured inference latency, so head-to-head deployability comparisons against a ViT-based model must be reconstructed rather than read directly off these papers.
+
+\subsection{Hybrid CNN-ViT and lightweight-ViT models built for plant disease}
+
+This is the cluster most directly relevant to the project's research question: Thakur et al.~\cite{thakur2023vitcnn}, PMVT~\cite{li2023pmvt}, MobilePlantViT~\cite{tonmoy2025mobileplantvit}, Multi-ViT~\cite{baek2025multivit}, PLA-ViT~\cite{murugavalli2025plavit}, and Aboelenin et al.'s hybrid framework~\cite{aboelenin2025hybrid} all claim accuracy parity with, or improvement over, CNN baselines, and several (PMVT, MobilePlantViT) explicitly target mobile deployment through parameter reduction. However, deployability reporting across the six is inconsistent: parameter count is reported more often than FLOPs, and FLOPs more often than measured latency; only PMVT and PLA-ViT discuss inference time explicitly, and neither publishes it alongside a like-for-like MobileNetV2 comparison. This inconsistency is the central evidence for the research gap this project addresses.
+
+\subsection{Deployability-focused benchmarking on field-realistic data}
+
+Kumar et al.~\cite{kumar2025mobilefriendly} is the only reviewed paper that benchmarks several lightweight CNNs directly against each other on a combined, field-realistic dataset (PlantDoc + PlantVillage + PlantWild) rather than lab-only PlantVillage imagery. Its substantially lower accuracy ceiling (94.7\%, versus the $>$99\% figures reported elsewhere in Table~\ref{tab:survey}) is an important caution for interpreting the PlantVillage-only results throughout the rest of the literature. This project scopes its own evaluation to PlantVillage alone, but explicitly notes this caution as a limitation to be addressed in future work rather than within the present study.
+
+\FloatBarrier
+\clearpage
+
+\section{Introduction}
+
+\subsection{Importance}
+
+Plant diseases destroy a substantial share of global crop yield every year, threatening food security and rural incomes, and their impact is heaviest precisely where diagnostic expertise is scarcest: smallholder farms in low- and middle-income regions~\cite{mohanty2016plant}. Because disease symptoms often spread quickly across a field, the value of a diagnosis falls sharply with delay, which is why early, on-the-spot identification is treated as a priority in precision-agriculture research~\cite{tonmoy2025mobileplantvit}.
+
+\subsection{Background}
+
+Deep learning has been the dominant tool for automating this diagnosis since Mohanty et al.~\cite{mohanty2016plant} showed that a convolutional neural network (CNN) fine-tuned on the PlantVillage dataset could identify 26 diseases across 14 crop species with 99.35\% accuracy. That result opened two, largely separate research threads. The first pursued raw accuracy, first with deeper CNNs and later with Vision Transformers (ViTs)~\cite{dosovitskiy2021vit}, which replace convolution with global self-attention and have matched or exceeded CNN accuracy on large-scale benchmarks, though at higher parameter counts and data requirements. The second thread optimized CNNs for the resource-constrained hardware on which a working diagnostic tool must actually run (smartphones and embedded field sensors), producing architectures such as MobileNetV2~\cite{sandler2018mobilenetv2} and ShuffleNet V2~\cite{ma2018shufflenetv2}, whose designers explicitly showed that FLOPs alone are a poor proxy for real device latency. Hybrid CNN-ViT architectures, most notably MobileViT~\cite{mehta2022mobilevit} and its faster successor MobileViTv2~\cite{mehta2022mobilevitv2}, were proposed to bridge these threads by combining convolutional local feature extraction with transformer-based global context at mobile-friendly parameter budgets. This hybrid idea has since been adapted directly to plant disease classification, yielding models such as PMVT~\cite{li2023pmvt} and MobilePlantViT~\cite{tonmoy2025mobileplantvit}, which report strong accuracy at very low parameter counts.
+
+\subsection{Problem Statement}
+
+Despite this progress, it remains unclear whether the accuracy gained by adopting a hybrid CNN-ViT architecture for plant disease classification is large enough, in a given deployment setting, to justify the model size and inference-latency cost it adds relative to a purely convolutional lightweight baseline. Reported results across the literature are difficult to compare directly because studies vary in dataset difficulty (controlled PlantVillage imagery versus field-collected ``in-the-wild'' images~\cite{kumar2025mobilefriendly}), in which deployability metrics they report, and in whether latency is measured on real hardware or approximated through FLOPs~\cite{ma2018shufflenetv2}. Stated precisely, the problem this project addresses is the following: given the same plant disease classification task and dataset (PlantVillage), it is unclear whether a hybrid CNN-ViT model (MobileViT) provides a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2), that is, whether any accuracy improvement it offers is large enough to justify the increased model size and inference latency it adds for edge deployment.
+
+\subsection{Research Gap}
+
+Synthesizing across the fifteen studies reviewed, the recurring gap is that no reviewed paper benchmarks a hybrid CNN-ViT model and a pure lightweight CNN on the same plant disease dataset, under identical training conditions, across all four deployability axes used in general-purpose architecture research: accuracy, model size, FLOPs, and measured inference latency. Plant-disease-specific papers report accuracy, and sometimes parameter count, but rarely benchmark inference latency, model size, and FLOPs together against a matched lightweight CNN baseline trained under identical conditions~\cite{mohanty2016plant,thakur2023vitcnn,li2023pmvt,tonmoy2025mobileplantvit,karthikeyan2025cnnseeib,pal2025mobres,baek2025multivit,murugavalli2025plavit,aboelenin2025hybrid}. Where deployability is benchmarked rigorously across accuracy, latency, parameters and FLOPs together, it is almost always on generic ImageNet-scale vision tasks rather than on plant disease data~\cite{dosovitskiy2021vit,sandler2018mobilenetv2,ma2018shufflenetv2,mehta2022mobilevit,mehta2022mobilevitv2}. This leaves a gap between architecture-design papers, which quantify the accuracy-latency trade-off in general, and plant-disease papers, which mostly quantify accuracy alone.
+
+\subsection{Evidence}
+
+The trade-off this project investigates is visible even across the papers surveyed here. MobileViT reports a 3.2-percentage-point accuracy gain over MobileNetV3 at a comparable parameter count~\cite{mehta2022mobilevit}, but its successor, MobileViTv2, exists specifically because the original MobileViT's self-attention operations made it slower on-device than its FLOP count implied, a redesign that bought a 3.2$\times$ latency reduction~\cite{mehta2022mobilevitv2}. On plant disease data specifically, results diverge sharply by dataset difficulty: models evaluated on the controlled PlantVillage images report accuracies above 99\%~\cite{mohanty2016plant,karthikeyan2025cnnseeib,pal2025mobres}, while the same class of lightweight architectures evaluated on combined field datasets (PlantDoc, PlantVillage, PlantWild) top out closer to 94.7\%~\cite{kumar2025mobilefriendly}, and the smallest hybrid ViT surveyed, MobilePlantViT (0.69M parameters), reports accuracies ranging from 80\% to over 99\% depending on the dataset~\cite{tonmoy2025mobileplantvit}, evidence that parameter-count reduction alone does not guarantee that accuracy holds.
+
+\subsection{Aims}
+
+This project aims to determine, for plant disease classification specifically, whether a hybrid CNN-ViT architecture (MobileViT) offers a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2) when both are fine-tuned under identical conditions on the same dataset.
+
+\subsection{Objectives}
+
+To this end, the project will (i) fine-tune MobileNetV2 and MobileViT on the PlantVillage dataset under matched training conditions; (ii) benchmark both models on accuracy, F1-score, model size, FLOPs, and inference latency; (iii) quantify and visualize the resulting accuracy-vs-deployability trade-off; and (iv) provide an evidence-based recommendation on which architecture is preferable under different edge-deployment constraints.
+
+\clearpage
+\section{Methodology and Experimental Setup}
+\label{sec:method}
+
+\subsection{Proposed Methodology}
+\label{sec:method-overview}
+
+This study used a controlled comparative methodology to evaluate two lightweight deep learning models for plant disease classification: MobileNetV2 and MobileViT-XS. MobileNetV2 served as the lightweight CNN baseline, while MobileViT-XS represented the hybrid CNN and Vision Transformer approach.
+
+The main purpose of the experiment was to determine whether the use of transformer-based global feature learning in MobileViT provides a useful improvement in classification performance when its deployment cost is also considered. The study therefore compared the models not only on predictive performance, but also on computational and deployment-related measures.
+
+Both models were evaluated on the same PlantVillage dataset, and the same training, validation, and test split was used for both. The data preparation procedure, augmentation policy, training budget, model selection procedure, hardware environment, and evaluation process were also kept the same. This was necessary so that differences in the final results can be linked mainly to the model architectures rather than to different experimental conditions.
+
+Both models used ImageNet-pretrained weights and were then fine-tuned for the 38 PlantVillage classes. Transfer learning was used because both architectures can benefit from visual features learned from a large general-purpose image dataset before being adapted to plant disease images. It also reduces the amount of training required compared with learning all model parameters from random initialization.
+
+The workflow was:
+\begin{enumerate}
+    \item Load the original colour images from the PlantVillage dataset and audit them for corrupt, mislabelled and duplicate images.
+    \item Create stratified training, validation, and test sets in which duplicate and near-duplicate images always fall in the same set.
+    \item Apply each model's own pretrained preprocessing and the shared training-time data augmentation.
+    \item Load ImageNet-pretrained MobileNetV2 and MobileViT-XS models.
+    \item Replace their original classification layers with classifiers for the 38 PlantVillage classes.
+    \item Fine-tune both models with the same experimental protocol, three times each with different random seeds.
+    \item Select the best model checkpoint of each run using validation-set loss.
+    \item Evaluate all final models on the same unseen test set.
+    \item Measure classification performance using accuracy, macro-averaged precision, recall and F1-score.
+    \item Measure deployment-related properties using parameter count, model size, FLOPs, inference latency and memory use.
+    \item Compare the results to study the trade-off between predictive performance and deployability.
+\end{enumerate}
+
+The final objective was not only to identify which model achieves higher classification performance. The experiment examined whether any performance difference is large enough to justify the computational cost of the model when used in an edge-device setting.
+
+\subsection{Model Architecture}
+
+Two architectures were used in the study: MobileNetV2 and MobileViT-XS. They were selected because both target efficient visual recognition, but they use different methods for learning image features.
+
+\subsubsection{MobileNetV2}
+
+MobileNetV2 was used as the lightweight CNN baseline~\cite{sandler2018mobilenetv2}. It was designed for mobile and resource-constrained environments. Its main building block is the inverted residual block with a linear bottleneck.
+
+Instead of relying mainly on standard convolutions, MobileNetV2 uses depthwise separable convolutions to reduce computation. Within an inverted residual block, the input channels are first expanded, a depthwise convolution processes the spatial information, and a linear projection reduces the representation to a smaller number of channels. Residual connections are used when the input and output dimensions allow them.
+
+These design choices make MobileNetV2 suitable as the baseline for this study because it represents a well-established approach to efficient CNN-based image classification. The standard MobileNetV2 model with its 1,000-class ImageNet head has approximately 3.5 million parameters, which is small compared with many conventional CNN architectures.
+
+The ImageNet-pretrained checkpoint \texttt{google/mobilenet\_v2\_1.0\_224} from the Hugging Face model hub~\cite{wolf2020transformers} was used. Its original ImageNet classification layer was replaced with a new classification layer that produces 38 outputs, one for each PlantVillage class. With this head the model has 2.27 million parameters. The model was then fine-tuned on the PlantVillage training set.
+
+\subsubsection{MobileViT-XS}
+
+MobileViT combines convolutional processing with transformer-based feature learning~\cite{mehta2022mobilevit}. The CNN components learn local image patterns such as edges, shapes, textures, and disease spots. MobileViT blocks then use self-attention to model relationships between features from different spatial regions of the image.
+
+A MobileViT block first uses convolutional layers to encode local spatial information. The resulting feature map is divided into small patches and passed through transformer layers so that information can be exchanged across different parts of the image. The transformed features are then returned to their spatial form and fused with convolutional features.
+
+The MobileViT-XS variant was used in this study. MobileViT-XS was selected instead of MobileViT-S because it provides a more suitable lightweight comparison with MobileNetV2. In the original MobileViT study, MobileViT-XS contains about 2.3 million parameters, while the standard MobileNetV2 contains about 3.5 million parameters. Using MobileViT-XS reduces the chance that the comparison is mainly determined by one model simply having a much larger parameter budget.
+
+This choice is also useful for the deployability question. The original MobileViT experiments showed that MobileViT-XS can have fewer parameters than MobileNetV2 while still requiring more FLOPs and higher inference time. This means that parameter count alone is not enough to describe whether a model is suitable for edge deployment. Measuring actual inference latency was therefore an important part of this project.
+
+As with MobileNetV2, ImageNet-pretrained weights were used, from the checkpoint \texttt{apple/mobilevit-x-small}. The original classification head was replaced with a new 38-class output layer before fine-tuning on PlantVillage. With this head the model has 1.95 million parameters.
+
+\subsubsection{Basis of the Architecture Comparison}
+
+The two models provide a direct comparison between two different lightweight design approaches (Table~\ref{tab:modelroles}).
+
+\begin{table}[h]
+\caption{Model Roles in the Comparative Study}
+\label{tab:modelroles}
+\centering
+\small
+\begin{tabular}{|P{0.2\columnwidth}|P{0.35\columnwidth}|P{0.3\columnwidth}|}
+\hline
+\textbf{Model} & \textbf{Main Approach} & \textbf{Main Role in the Study} \\
+\hline
+MobileNetV2 & Lightweight convolutional neural network & CNN baseline \\
+\hline
+MobileViT-XS & Hybrid convolutional and transformer network & Hybrid comparison model \\
+\hline
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+MobileNetV2 mainly uses convolutional operations and is optimized for efficient local feature extraction. MobileViT-XS keeps convolutional processing but adds transformer-based global feature learning. Comparing the two under the same experimental setup allows the study to test whether the added global feature modelling leads to a useful accuracy improvement and how that improvement affects computational cost and inference speed.
+
+The internal architectures of the pretrained models were not redesigned. Only the final classification heads were adapted for the 38 PlantVillage classes. This keeps the study focused on comparing the established architectures rather than introducing additional architectural changes that could make the results harder to interpret.
+
+\subsection{Dataset and Preprocessing}
+\label{sec:data}
+
+This study used the original colour version of the PlantVillage dataset~\cite{mohanty2016plant}, in the copy published on Kaggle. This copy contains 54,305 images of 256$\times$256 pixels in 38 classes from 14 crop species. It is distributed as a training folder and a validation folder, with no test set.
+
+Before splitting, the images were audited. One image was removed: an outdoor photograph of a pepper fruit stored in the healthy pepper leaf class, which is not a laboratory leaf image. This left 54,304 images. The audit also found 21 pairs of byte-identical files and further near-duplicates, that is, images of the same class that differ only slightly or are flipped or rotated copies of each other. Near-duplicates were detected by comparing small greyscale versions of every image with all flips and rotations of the others. Images that matched within a fixed threshold were placed in the same group, which gave 73 groups of two or more images (177 images in total). Twenty-nine of these groups had images in both shipped folders, so the shipped split leaked near-identical images between training and validation.
+
+For this reason the shipped split was not used. All images were pooled and re-split into training, validation and test sets with an 80/10/10 ratio, using a stratified and grouped split (stratified group $k$-fold with ten folds and seed 42). Stratification keeps the proportion of each class the same in all three sets, and grouping keeps every duplicate group inside a single set. Every class stays within 0.53 percentage points of the 80/10/10 target. Table~\ref{tab:split} summarises the split, and Fig.~\ref{fig:classdist} shows the number of images per class. The same split was used for every experiment.
+
+\inputtable{split}
+
+\figwide{data_class_distribution}{Number of images per class in the training, validation and test sets. The dataset is imbalanced: the largest class has 5,507 images and the smallest has 152.}{fig:classdist}
+
+Each model received its input in the form used during its pretraining, as given by the preprocessing configuration published with each checkpoint. The original proposal assumed the ImageNet mean and standard deviation for both models, but neither checkpoint uses them. MobileNetV2 expects 224$\times$224 RGB images whose pixel values are scaled to $[0,1]$ and then normalised with a mean of 0.5 and a standard deviation of 0.5 per channel, which maps them to $[-1,1]$. MobileViT-XS expects 256$\times$256 images scaled to $[0,1]$ without further normalisation, with the colour channels in BGR order. The official configurations also resize the image and then crop its centre, which would cut away 11 to 12\% of the image border where parts of the leaf can lie. The whole image was therefore resized instead. Since all images are 256$\times$256, MobileViT-XS received them at their original size and MobileNetV2 received them resized to 224$\times$224. The effect of the normalisation choice was tested separately (Section~\ref{sec:e6}).
+
+Training-time data augmentation included random horizontal flipping, small random rotations ($\pm$15$^{\circ}$, with the empty corners filled in black), and mild colour jitter (brightness and contrast, both with a strength of 0.2). These augmentations are intended to improve generalization without distorting disease-relevant visual features such as lesion shape, colour, or spotting pattern, which are diagnostically meaningful and should not be aggressively altered. Validation and test images were not augmented and only underwent resizing and normalization, so that evaluation reflects unmodified inputs.
+
+The same augmentation policy was applied identically to both models, with only the input resolution and normalisation differing between them, consistent with the controlled comparative methodology described in Section~\ref{sec:method-overview}. Because the two CPU cores of the Colab runtime could not prepare images fast enough for the GPU, the augmentation, resizing and normalisation were run on the GPU. A test confirmed that the GPU version produces the same images as the CPU version to within one grey level.
+
+The experiments were implemented in PyTorch~\cite{paszke2019pytorch} with the Hugging Face Transformers library~\cite{wolf2020transformers}, which provides verified pretrained checkpoints for both architectures. This reduces the risk of implementation differences between the two models.
+
+\subsection{Training Configuration}
+
+Both models were fine-tuned under matched training conditions to isolate architecture as the primary source of any performance difference.
+
+\textbf{Optimizer:} AdamW~\cite{loshchilov2019adamw} was used for both models. AdamW is standard practice for fine-tuning pretrained vision models, as its decoupled weight decay improves generalization compared to standard Adam.
+
+\textbf{Learning rate:} An initial learning rate of $10^{-4}$ was used for both models, a commonly used starting point for fine-tuning pretrained convolutional and transformer-based vision models on moderately sized datasets.
+
+\textbf{Learning rate scheduler:} A cosine annealing schedule reduced the learning rate from $10^{-4}$ to zero over the full training budget. It was updated after every batch.
+
+\textbf{Batch size:} A batch size of 32 was used for both models, selected to balance training stability with the memory constraints of the Google Colab environment used for training.
+
+\textbf{Epochs:} Both models were fine-tuned for a maximum of 10 epochs, with the best checkpoint selected based on validation loss rather than final-epoch performance. The proposal planned 20 epochs. This was reduced to 10 to fit the GPU time available on the free Colab tier, after a first 20-epoch run showed that validation accuracy was already above 99\% after six epochs.
+
+\textbf{Loss function:} Categorical cross-entropy loss was used, as this is the standard loss function for multi-class classification tasks with mutually exclusive class labels.
+
+\textbf{Early stopping:} Training was set to stop early if validation loss did not improve for 5 consecutive epochs, to prevent overfitting and reduce unnecessary computation. Within the 10-epoch budget this condition was not reached in any run.
+
+\textbf{Regularization:} Weight decay of $10^{-4}$ was applied via the AdamW optimizer. No additional dropout layers were introduced beyond those already present in the pretrained architectures, to avoid altering the original model designs.
+
+\textbf{Mixed precision:} Training used FP16 mixed precision~\cite{micikevicius2018mixed} for both models, which makes training faster on the T4 GPU. Test-set evaluation used full FP32 precision.
+
+\textbf{Random seeds:} The data split used the fixed seed 42. Each model was then trained three times, with seeds 42, 43 and 44. The seed controls the initialization of the new classification head, the order of the training batches, the augmentation and dropout. The data order and augmentation of each epoch depend only on the seed and the epoch number, so a run that was interrupted and resumed from its last checkpoint saw the same batches as an uninterrupted run.
+
+\textbf{Hardware:} All models were trained on the same Google Colab runtime type: an NVIDIA Tesla T4 GPU with 16\,GB of memory and two virtual CPU cores, using PyTorch 2.11 to 2.14 and Transformers 5.22. A checkpoint was saved to Google Drive after every epoch so that training could continue after a disconnect.
+
+This configuration was applied identically to both MobileNetV2 and MobileViT-XS, in line with the controlled comparison stated under methodology.
+
+\subsection{Evaluation Metrics}
+\label{sec:metrics}
+
+Model performance was evaluated using a combination of predictive accuracy metrics and deployability metrics, reflecting the project's dual focus on classification performance and edge-device suitability.
+
+\textbf{Accuracy} was calculated as the proportion of correctly classified test images out of the total number of test images. Accuracy is reported because it is the most widely used metric in the reviewed literature, allowing direct comparability with prior PlantVillage studies.
+
+\textbf{F1-score} was reported using the macro-averaged variant, calculated independently for each of the 38 classes and then averaged without weighting by class frequency. Macro-averaging is used rather than weighted averaging because it treats all disease classes equally regardless of how many images represent them, which better reflects real-world diagnostic importance, since a rare disease class is not less important to correctly identify than a common one. Macro-averaged precision and recall are reported as well, because they show which of the two drives the F1-score.
+
+\textbf{Model size} was reported in two forms: the total number of parameters (all of them were trained), and the on-disk size of the saved model weights in megabytes. Parameter count allows direct comparison with figures reported in the original MobileNetV2 and MobileViT papers, while file size reflects practical storage requirements on a mobile device.
+
+\textbf{FLOPs} were calculated for a single forward pass of one image at each model's input resolution, using the FLOP counter built into PyTorch. It counts convolutions and matrix multiplications, with one multiply-accumulate operation (MAC) counted as two FLOPs. MACs are reported as well, because the MobileNetV2 and MobileViT papers report this unit. FLOPs provide a hardware-independent estimate of computational cost, allowing comparison with other studies that do not report measured latency.
+
+\textbf{Inference latency} was measured as the average wall-clock time required to process a single image, timed on the same hardware used for training. For each model, 10 warm-up runs were followed by 100 timed runs with a batch size of 1. Only the forward pass was timed, without image loading or preprocessing. Latency was measured on the T4 GPU in FP32 and FP16, and on the CPU of the same machine with one thread, since this machine exposes a single physical CPU core. The single-thread CPU figure is the closest stand-in for one core of a mobile processor. Both models were measured one after the other in the same session.
+
+Latency is included specifically because, as established in the literature review, FLOPs and parameter count are not reliable proxies for real-world inference speed; measuring latency directly is necessary to assess true edge-deployment suitability.
+
+\textbf{Statistical comparison:} Because both models were tested on the same images, the difference between them was tested per seed with the exact McNemar test~\cite{mcnemar1947}, which only considers images that exactly one of the two models classified correctly. A 95\% confidence interval for the difference in accuracy and in macro-F1 was computed with 2,000 paired bootstrap resamples of the test set~\cite{efron1993bootstrap}.
+
+Together, these metrics allow the study to evaluate not only which model classifies plant diseases more accurately, but whether any accuracy advantage is large enough to justify its cost in model size, computational complexity, and real-world inference speed, directly addressing the research question stated.
+\FloatBarrier
+
+\clearpage
+\section{Experiments and Results}
+\label{sec:results}
+
+This section presents the experiments that were carried out to answer the research question: does MobileViT-XS offer a deployability-adjusted advantage over MobileNetV2 for plant disease classification? Six experiments were run. Table~\ref{tab:experiments} lists them with their purpose. E1 to E3 answer the research question directly. E4 to E6 examine how the models behave and how sensitive the results are to the test conditions and to preprocessing.
+
+\begin{table}[!t]
+\caption{Overview of the Experiments}
+\label{tab:experiments}
+\centering
+\footnotesize
+\begin{tabular}{|P{0.08\columnwidth}|P{0.29\columnwidth}|P{0.46\columnwidth}|}
+\hline
+\textbf{ID} & \textbf{Experiment} & \textbf{Purpose} \\
+\hline
+E1 & Classification performance (baseline comparison) & Compare test accuracy, precision, recall and F1 of the two models over three seeds, and test whether the difference is significant. \\
+\hline
+E2 & Deployability benchmark & Measure parameters, file size, FLOPs, latency, throughput, memory and training cost. \\
+\hline
+E3 & Accuracy versus cost & Relate the accuracy difference from E1 to the cost difference from E2. \\
+\hline
+E4 & Qualitative analysis & Show confusions, correct and failed predictions, and Grad-CAM heat maps. \\
+\hline
+E5 & Robustness test & Evaluate the trained models on test images degraded by noise, blur, poor lighting, compression and low resolution. \\
+\hline
+E6 & Preprocessing ablation & Retrain both models with the ImageNet normalisation of the original proposal and compare. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Experimental Conditions}
+
+All experiments used the fixed split of Section~\ref{sec:data} and the training protocol of Section~\ref{sec:method}. Every reported test result comes from the checkpoint with the lowest validation loss of its run, evaluated once on the 5,431 test images. Unless stated otherwise, results are the mean $\pm$ sample standard deviation over three training runs with seeds 42, 43 and 44. All training and all timing measurements were performed on an NVIDIA Tesla T4 GPU in Google Colab. The Colab software image was updated between sessions, so the runs used PyTorch 2.11 to 2.14 with Transformers 5.22. The deployability benchmark ran in a single session with PyTorch 2.14.
+
+\subsection{E1: Classification Performance}
+\label{sec:e1}
+
+The purpose of E1 is to establish whether the hybrid model classifies plant diseases more accurately than the CNN baseline when both are trained under identical conditions.
+
+\inputtable{main}
+
+Table~\ref{tab:main} shows the test results. MobileViT-XS reached an accuracy of 99.68 $\pm$ 0.02\% and a macro-F1 of 99.46 $\pm$ 0.03\%. MobileNetV2 reached 99.47 $\pm$ 0.06\% and 99.17 $\pm$ 0.07\%. MobileViT-XS was the better model on all four metrics. It made 17.3 errors on average against 28.7 for MobileNetV2, which is about 40\% fewer errors. The gap is small in absolute terms (0.21 percentage points of accuracy and 0.29 points of macro-F1), but it had the same sign in every seed: the weakest MobileViT-XS run was still better than the best MobileNetV2 run (Table~\ref{tab:perseed}). MobileViT-XS also varied less between seeds, with a lower standard deviation on every metric.
+
+\inputtable{per_seed}
+
+Table~\ref{tab:stats} compares the two models on the same test images. In each seed, MobileViT-XS classified 15 to 21 images correctly that MobileNetV2 missed, while MobileNetV2 classified only 7 or 8 images correctly that MobileViT-XS missed. For seeds 43 and 44 the difference is significant at the 5\% level (McNemar $p = 0.013$ and $p = 0.024$), and the 95\% bootstrap intervals for the accuracy and macro-F1 differences lie entirely above zero. For seed 42 the difference has the same sign but is not significant ($p = 0.21$), and both intervals include zero.
+
+\inputtable{stats}
+
+Fig.~\ref{fig:curves} shows the training curves. After the first epoch MobileViT-XS had the lower validation accuracy (95.5\% against 96.9\% on average), but from the second epoch onwards its validation accuracy was higher than that of MobileNetV2 and it ended at 99.69\% against 99.26\% after ten epochs. MobileNetV2 reached a lower training loss than MobileViT-XS (0.003 against 0.012 at epoch 10), but a higher validation loss (0.023 against 0.011). The validation loss of MobileNetV2 reached its minimum at epoch 9, 6 and 8 and was higher again at epoch 10 in all three runs. The validation loss of MobileViT-XS reached its minimum at epoch 10, 10 and 9, so in two of the three runs it was still decreasing at the end of the 10-epoch budget.
+
+\figwide{e1_learning_curves}{Training and validation loss (log scale), validation accuracy and learning rate per epoch. Lines are the mean of the three seeds; shaded bands show the range across seeds. Dotted vertical lines mark the epoch with the lowest validation loss of each run.}{fig:curves}
+
+Fig.~\ref{fig:perclass} and Table~\ref{tab:perclass} break the F1-score down by class. Eleven classes were classified without error by both models in every run. MobileViT-XS had a higher F1-score than MobileNetV2 in 25 of the 38 classes, the same F1-score in 12, and a lower one in a single class (Soybean healthy, by 0.03 points). The largest gains were on the two corn leaf-spot diseases (Cercospora leaf spot: 91.3\% to 93.3\%; Northern Leaf Blight: 95.0\% to 96.4\%), on healthy potato and potato Early blight, and on two tomato diseases (Target Spot and Spider mites). The two corn diseases and healthy potato are also the three classes with the lowest F1-score for both models.
+
+\figwide{e1_per_class_f1}{Test F1-score per class (mean over seeds; bars show $\pm$1 standard deviation), sorted by the MobileNetV2 score. $n$ is the number of test images of the class.}{fig:perclass}
+
+\inputtable{per_class}
+
+\FloatBarrier
+\subsection{E2: Deployability}
+\label{sec:e2}
+
+The purpose of E2 is to measure what each model costs to store, run and train. Both models were benchmarked one after the other in the same session on the same T4 GPU. The fine-tuned weights do not change any of these numbers, so the seed-42 models were used.
+
+\inputtable{deployability}
+
+Table~\ref{tab:deploy} shows the results. MobileViT-XS has 14\% fewer parameters than MobileNetV2 (1.95 million against 2.27 million) and a 15\% smaller weight file (7.9\,MB against 9.3\,MB in FP32). It needs, however, 3.4 times as many operations per image: 1.03 GMACs against 0.30 GMACs. Part of this difference comes from its larger input (256$\times$256 against 224$\times$224, or 31\% more pixels), and the rest comes from the architecture itself.
+
+The measured latency did not grow as fast as the operation count. On the GPU, one image took 13.2 $\pm$ 1.4\,ms with MobileViT-XS and 8.0 $\pm$ 1.2\,ms with MobileNetV2, a ratio of 1.6. On the CPU with one thread, the times were 72.7 $\pm$ 12.8\,ms and 42.2 $\pm$ 12.3\,ms, a ratio of 1.7. The CPU of the Colab machine exposes a single physical core, so a multi-threaded CPU measurement was not possible. FP16 mixed precision did not reduce latency at a batch size of one: both models were slower in FP16 than in FP32 (16.7\,ms and 9.5\,ms). With a batch of 32 images, MobileNetV2 processed 815 images per second on the GPU and MobileViT-XS 425, so MobileNetV2 had 1.9 times the throughput. MobileViT-XS also needed more GPU memory at inference time (19.8\,MiB against 11.8\,MiB for one image, and 632\,MiB against 378\,MiB for a batch of 32).
+
+\inputtable{training_cost}
+
+Training cost is shown in Table~\ref{tab:traincost}. One MobileViT-XS epoch took 252 $\pm$ 1 seconds against 165 $\pm$ 1 seconds for MobileNetV2, so a full 10-epoch run took 43.5 minutes against 28.7 minutes, 1.5 times as long. MobileViT-XS also needed 2.2 times as much GPU memory during training (2,879\,MiB against 1,317\,MiB at batch size 32). Its throughput during training was 172 images per second against 263. The training throughput of MobileNetV2 was probably limited by the two CPU cores that decode the images, so the true GPU cost ratio during training may be larger than 1.5.
+
+\FloatBarrier
+\subsection{E3: Accuracy Versus Deployment Cost}
+\label{sec:e3}
+
+The purpose of E3 is to relate the accuracy gained by MobileViT-XS in E1 to the cost it adds in E2. Table~\ref{tab:tradeoff} lists the accuracy difference next to the cost ratios, and Fig.~\ref{fig:tradeoff} plots test accuracy against each cost measure.
+
+\inputtable{tradeoff}
+
+\fig{e3_tradeoff}{Test accuracy (mean $\pm$ standard deviation over three seeds) against parameter count, operations per image, single-thread CPU latency and GPU latency. Lower cost is to the left.}{fig:tradeoff}
+
+MobileViT-XS improves accuracy by 0.21 percentage points and macro-F1 by 0.29 points, which removes about 11 of every 29 errors made by MobileNetV2. In exchange, it is 1.6 times slower per image on the GPU, 1.7 times slower on one CPU thread, has about half the GPU throughput, and needs 3.4 times the operations per image, 1.5 times the training time and 2.2 times the training memory. Parameter count and file size are the only measures on which MobileViT-XS is cheaper, by 14\% and 15\%. This agrees with the observation in the literature that parameter count alone does not describe deployment cost~\cite{ma2018shufflenetv2,mehta2022mobilevitv2}. In absolute terms, both models classify one image in less than 75\,ms on one CPU core of the Colab machine.
+
+\FloatBarrier
+\subsection{E4: Qualitative Results}
+\label{sec:e4}
+
+The purpose of E4 is to show what kinds of mistakes the models make and which image regions their predictions rely on. All examples come from the seed-42 models and were selected by fixed rules rather than by hand: random correct images, each model's most confident mistakes, and images that only one model classified correctly.
+
+\figwide{e4_confusion_mobilenetv2}{MobileNetV2: test images assigned to the wrong class (mean count per run). The diagonal, which holds the correct predictions, is hidden so that the errors are visible. Class numbers on the horizontal axis match the list on the vertical axis.}{fig:cm-mnv2}
+
+\figwide{e4_confusion_mobilevit_xs}{MobileViT-XS: test images assigned to the wrong class (mean count per run), drawn as in Fig.~\ref{fig:cm-mnv2}.}{fig:cm-mvit}
+
+\inputtable{top_confusions}
+
+Figs.~\ref{fig:cm-mnv2} and \ref{fig:cm-mvit} show where the errors occur, and Table~\ref{tab:confusions} lists the most frequent confusions. For both models, 85\% of all errors confused two diseases of the same crop. The most frequent error of both models was the same: corn Northern Leaf Blight predicted as corn Cercospora leaf spot (7.3 images per run for MobileNetV2 and 5.0 for MobileViT-XS). Together with the reverse confusion, these two corn classes account for about a third of the errors of MobileNetV2 and 40\% of those of MobileViT-XS. Tomato Early blight predicted as Late blight was among the next most frequent errors of both models (3.7 and 2.0 images per run). The most frequent confusion between crops, healthy cherry predicted as healthy potato, occurred about once per run for both models.
+
+\figwide{e4_correct}{Correctly classified test images with the prediction and confidence of both models (MNv2: MobileNetV2, MViT: MobileViT-XS).}{fig:correct}
+
+\figwide{e4_failures_mobilenetv2}{The most confident mistakes of MobileNetV2 on the test set, with the predictions of both models.}{fig:fail-mnv2}
+
+\figwide{e4_failures_mobilevit_xs}{The most confident mistakes of MobileViT-XS on the test set, with the predictions of both models.}{fig:fail-mvit}
+
+\figwide{e4_disagreements}{Test images that exactly one of the two models classified correctly.}{fig:disagree}
+
+Fig.~\ref{fig:correct} shows that correct predictions were typically made with a confidence of 1.00 by both models. The failure cases in Figs.~\ref{fig:fail-mnv2} and \ref{fig:fail-mvit} are dominated by the same two groups seen in the confusion matrices: corn leaves with long, pale lesions, and tomato leaves with brown spots. Several of these images were misclassified by both models with a confidence above 0.9. In each seed, 9 or 10 test images were misclassified by both models. Many mistakes were made with high confidence: a confidence of at least 0.9 was given to 36\% of the wrong predictions of MobileNetV2 and to 60\% of those of MobileViT-XS. Fig.~\ref{fig:disagree} shows images on which only one model was correct. Most of them come from the same corn and tomato classes. In most of them the correct model gave a high confidence, while the wrong prediction of the other model often had a confidence between 0.5 and 0.8.
+
+\fig{e4_gradcam}{Grad-CAM heat maps~\cite{selvaraju2017gradcam} of both models for three correctly classified images (top) and three images that at least one model misclassified (bottom). Bright regions raised the score of the predicted class the most. The maps are computed on the last convolutional feature map of each model (7$\times$7 for MobileNetV2, 8$\times$8 for MobileViT-XS).}{fig:gradcam}
+
+Fig.~\ref{fig:gradcam} shows Grad-CAM heat maps for both models. On the correctly classified images, both models focused on the leaf rather than on the grey background. The maps of MobileNetV2 were more concentrated on parts of the leaf, while the maps of MobileViT-XS spread over most of the leaf and in some images also over the background next to it. In the three lower rows, MobileNetV2 was wrong and MobileViT-XS was right. For the two corn images, both models highlighted similar regions of the leaf, so the MobileNetV2 errors were not caused by attention to the background. Because the maps come from feature maps of only 7$\times$7 and 8$\times$8 cells, they show the rough location of the evidence and not individual lesions.
+
+\FloatBarrier
+\subsection{E5: Robustness to Image Degradation}
+\label{sec:e5}
+
+PlantVillage images are taken in a laboratory, so a test accuracy above 99\% says little about images from a phone camera in a field. Field data is outside the scope of this study, but E5 shows how fast each model loses accuracy when the test images are degraded in ways a phone camera can produce. Six corruptions were applied at three severities, following the idea of common-corruption benchmarks~\cite{hendrycks2019robustness}: Gaussian noise, Gaussian blur, low brightness, low contrast, strong JPEG compression and low resolution. Every test image was corrupted once, and exactly the same corrupted image was given to all six trained models. No model was retrained.
+
+\inputtable{robustness}
+
+\figwide{e5_robustness}{Test accuracy under each corruption at three severities (mean over three seeds; bands show $\pm$1 standard deviation). The severity values are given in brackets in each title.}{fig:robust}
+
+Table~\ref{tab:robust} and Fig.~\ref{fig:robust} show the results. Averaged over all corruptions and severities, the two models were equally robust: the mean accuracy was 74.2\% for MobileNetV2 and 74.0\% for MobileViT-XS. The models differed by type of corruption. MobileViT-XS was clearly more robust to low brightness and low contrast, losing only 0.6 and 1.5 points of accuracy against 3.5 and 3.1 points for MobileNetV2, whose accuracy at the strongest darkening fell to 78.8\% in one seed. It was also more robust to Gaussian noise (a drop of 42.4 against 48.4 points). MobileNetV2 was more robust to blur (27.8 against 32.3 points) and to JPEG compression (31.8 against 39.7 points). For low resolution the two models were similar. Noise, blur, JPEG compression and low resolution reduced the accuracy of both models strongly: at the highest severity, accuracy fell to between 14\% and 50\%.
+
+\FloatBarrier
+\subsection{E6: Preprocessing Ablation}
+\label{sec:e6}
+
+The proposal planned to normalise both models with the ImageNet mean and standard deviation, but the published checkpoints expect different preprocessing (Section~\ref{sec:data}). E6 tests whether this choice matters. Both models were retrained with seed 42 using the ImageNet mean and standard deviation in RGB order, with everything else unchanged, and compared with their seed-42 runs from E1.
+
+\inputtable{ablation}
+
+Table~\ref{tab:ablation} shows that both models were slightly less accurate with the ImageNet normalisation. MobileNetV2 lost 0.09 points of accuracy and 0.14 points of macro-F1 (five more test errors), and MobileViT-XS lost 0.02 and 0.03 points (one more test error). Both models reached their best validation loss in the same epoch as with their own preprocessing. Differences of five and one test images are of the same size as the differences between seeds in E1, where the error count varied by up to six images for MobileNetV2 and two for MobileViT-XS. With fine-tuning on this dataset, the choice of normalisation therefore had at most a very small effect.
+
+\FloatBarrier
+\subsection{Summary of Results}
+
+The experiments give the following answers. MobileViT-XS was the more accurate model, with a test accuracy of 99.68 $\pm$ 0.02\% and a macro-F1 of 99.46 $\pm$ 0.03\%, against 99.47 $\pm$ 0.06\% and 99.17 $\pm$ 0.07\% for MobileNetV2 (E1). It made about 40\% fewer errors and was better in every seed, although the per-seed difference was statistically significant in two of the three seeds. This gain came at a clear deployment cost (E2, E3): MobileViT-XS was 1.6 times slower on the GPU and 1.7 times slower on one CPU core, had about half the throughput, needed 3.4 times the operations, and took 1.5 times as long and 2.2 times as much memory to train. Only its parameter count and file size were smaller, by about 15\%. Most errors of both models were confusions between similar diseases of the same crop, mainly the two corn leaf-spot diseases (E4). Under image degradation neither model was more robust overall: MobileViT-XS was more robust to poor lighting and noise, and MobileNetV2 to blur and JPEG compression (E5). The normalisation planned in the proposal gave almost the same accuracy as the preprocessing of each checkpoint, and slightly lower accuracy for both models (E6).
+
+\FloatBarrier
+\medskip
+
+\newpage
+\printbibliography
+
+\end{document}

@@ -1,0 +1,14 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Training cost (mean $\pm$ std over seeds; batch 32, FP16 mixed precision, GPU: Tesla T4). Total time includes validation after every epoch.}
+\label{tab:traincost}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Epochs run & Best epoch & Min / epoch & Total min & Train img/s & Peak mem. (MiB) \\
+\midrule
+MobileNetV2 & 10.0 $\pm$ 0.0 & 7.7 $\pm$ 1.5 & 2.76 $\pm$ 0.02 & 28.7 $\pm$ 0.2 & 263 $\pm$ 2 & 1317 $\pm$ 9 \\
+MobileViT-XS & 10.0 $\pm$ 0.0 & 9.7 $\pm$ 0.6 & 4.20 $\pm$ 0.02 & 43.5 $\pm$ 0.2 & 172 $\pm$ 1 & 2879 $\pm$ 2 \\
+\bottomrule
+\end{tabular}
+\end{table*}
