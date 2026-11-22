@@ -17,7 +17,7 @@ def dataset_split(manifest: pd.DataFrame):
         m = manifest[manifest["split"] == s]
         rows.append([s.capitalize() if s != "val" else "Validation", f"{len(m):,}".replace(",", "{,}"),
                      f"{100 * len(m) / n:.1f}", f"{m['group_id'].nunique():,}".replace(",", "{,}"),
-                     f"{m.groupby('label').size().min()}--{m.groupby('label').size().max()}"])
+                     f"{m.groupby('label').size().min()} to {m.groupby('label').size().max():,}".replace(",", "{,}")])
     rows.append(["Total", f"{n:,}".replace(",", "{,}"), "100.0",
                  f"{manifest['group_id'].nunique():,}".replace(",", "{,}"), ""])
     return latex_table(["Split", "Images", "Share (\\%)", "Groups", "Per class"], rows,
@@ -59,7 +59,7 @@ def statistics(stats: pd.DataFrame):
     rows = []
     for _, r in stats.iterrows():
         p = r["mcnemar_p"]
-        rows.append([str(r["seed"]), f"{r['acc_diff_pp']:+.2f}",
+        rows.append([str(int(r["seed"])), f"{r['acc_diff_pp']:+.2f}",
                      f"[{r['acc_ci_low_pp']:+.2f}, {r['acc_ci_high_pp']:+.2f}]",
                      f"[{r['f1_ci_low_pp']:+.2f}, {r['f1_ci_high_pp']:+.2f}]",
                      str(int(r["only_mobilenetv2_right"])), str(int(r["only_mobilevit_right"])),
@@ -167,7 +167,7 @@ def top_confusions(tc: pd.DataFrame):
 def robustness(summary: pd.DataFrame, clean: dict):
     a, b = MODEL_ORDER
     s = summary.set_index(["corruption", "model"])
-    rows = [["Clean", pm(100 * clean[a][0], 100 * clean[a][1]), pm(100 * clean[b][0], 100 * clean[b][1]), "--", "--"]]
+    rows = [["Clean", pm(100 * clean[a][0], 100 * clean[a][1]), pm(100 * clean[b][0], 100 * clean[b][1]), "0.00", "0.00"]]
     for c in summary["corruption"].unique():
         ra, rb = s.loc[(c, a)], s.loc[(c, b)]
         rows.append([c.replace("_", " ").capitalize(),

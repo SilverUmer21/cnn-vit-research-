@@ -1,0 +1,261 @@
+<title>Leaf Model Phone Benchmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column, the run button first, results as a table, saved runs below */
+:root {
+  --bg: #f6f8f5;
+  --surface: #ffffff;
+  --fg: #17201a;
+  --muted: #5b6a60;
+  --line: #d9e1db;
+  --accent: #2f7d4a;
+  --accent-ink: #ffffff;
+  --good: #2f7d4a;
+  --bad: #b3261e;
+  --bar: #e3ebe5;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111612; --surface: #19201b; --fg: #e4ece6; --muted: #9aab9f; --line: #2b362e;
+    --accent: #5cb87d; --accent-ink: #0c140f; --good: #6cc98d; --bad: #f2867d; --bar: #26302a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111612; --surface: #19201b; --fg: #e4ece6; --muted: #9aab9f; --line: #2b362e;
+  --accent: #5cb87d; --accent-ink: #0c140f; --good: #6cc98d; --bad: #f2867d; --bar: #26302a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+main { max-width: 640px; margin: 0 auto; display: grid; gap: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin: 0; text-wrap: balance; }
+h2 { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 60ch; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: 0.9rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-family: var(--mono); font-size: 0.85rem; overflow-wrap: anywhere; min-width: 0; }
+label { font-size: 0.9rem; font-weight: 500; }
+input[type=text] {
+  width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--fg);
+}
+button {
+  font: inherit; font-weight: 600; border-radius: 8px; padding: 12px 18px; border: 1px solid var(--accent);
+  background: var(--accent); color: var(--accent-ink); cursor: pointer;
+}
+button.secondary { background: transparent; color: var(--accent); }
+button:disabled { opacity: 0.55; cursor: default; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.progress { height: 8px; background: var(--bar); border-radius: 4px; overflow: hidden; }
+.progress > div { height: 100%; width: 0%; background: var(--accent); transition: width 0.15s linear; }
+#status { font-size: 0.9rem; color: var(--muted); min-height: 1.5em; }
+#status.error { color: var(--bad); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 500; color: var(--muted); font-size: 0.8rem; }
+td { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td:first-child { font-family: var(--sans); font-weight: 500; }
+.ok { color: var(--good); }
+.fail { color: var(--bad); }
+.note { font-size: 0.82rem; color: var(--muted); }
+.ratio { font-size: 0.95rem; }
+.ratio strong { font-family: var(--mono); }
+ul.saved { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+ul.saved li { border-top: 1px solid var(--line); padding-top: 8px; font-size: 0.88rem; display: grid; gap: 2px; }
+ul.saved .meta { color: var(--muted); font-size: 0.8rem; }
+@media (prefers-reduced-motion: reduce) { .progress > div { transition: none; } }
+</style>
+
+<main>
+  <header style="display:grid;gap:6px">
+    <h1>Leaf Model Phone Benchmark</h1>
+    <p class="lede">Times the fine-tuned MobileNetV2 and MobileViT-XS plant disease models on this device's own processor. Same protocol as the paper: one image per run, 10 warm-up runs, then 100 timed runs, FP32, one thread, preprocessing excluded.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="dev-h">
+    <h2 id="dev-h">This device</h2>
+    <dl class="kv" id="device"></dl>
+    <div style="display:grid;gap:6px">
+      <label for="device-name">Device name (for the results table)</label>
+      <input type="text" id="device-name" placeholder="e.g. Samsung Galaxy A54" autocomplete="off">
+    </div>
+    <div class="row">
+      <button id="run" type="button">Run benchmark</button>
+      <span class="note">Takes about 1 to 3 minutes. Keep this screen open and the phone plugged in if you can.</span>
+    </div>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+    <p id="status" role="status">Ready. Models download (about 25 MB) when you start.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="res-h">
+    <h2 id="res-h">Results</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th>Mean (ms)</th><th>Std</th><th>Median</th><th>p95</th><th>Output check</th></tr></thead>
+        <tbody id="results">
+          <tr><td>MobileNetV2</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>MobileViT-XS</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ratio" id="ratio">Run the benchmark to see how much slower MobileViT-XS is on this device.</p>
+    <div class="row">
+      <button id="copy" type="button" class="secondary" disabled>Copy results</button>
+      <span class="note" id="saved-note">Copy the results after a run and send them to the team.</span>
+    </div>
+    <p class="note">Output check: both models are given a fixed grey test image and must return the same top class and score as the original PyTorch model (class 10, score 3.02 for MobileNetV2 and 9.68 for MobileViT-XS).</p>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.wasm.min.js"></script>
+<script>
+const MODELS = [
+  { key: "mobilenetv2", name: "MobileNetV2", size: 224, file: "models/mobilenetv2.onnx.b64.txt", ref: { top: 10, logit: 3.02 } },
+  { key: "mobilevit_xs", name: "MobileViT-XS", size: 256, file: "models/mobilevit_xs.onnx.b64.txt", ref: { top: 10, logit: 9.678 } },
+];
+const WARMUP = 10, RUNS = 100;
+const RUNTIME = "onnxruntime-web 1.20.1, WebAssembly SIMD, 1 thread, FP32";
+const $ = (id) => document.getElementById(id);
+let lastRun = null;
+
+function deviceInfo() {
+  const ua = navigator.userAgent;
+  return {
+    platform: (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "unknown",
+    cores: navigator.hardwareConcurrency || null,
+    memoryGB: navigator.deviceMemory || null,
+    userAgent: ua,
+  };
+}
+function renderDevice() {
+  const d = deviceInfo();
+  const rows = [["Platform", d.platform], ["CPU threads", d.cores ?? "not reported"],
+                ["Memory", d.memoryGB ? `about ${d.memoryGB} GB` : "not reported"], ["Browser", d.userAgent]];
+  $("device").replaceChildren(...rows.flatMap(([k, v]) => {
+    const dt = document.createElement("dt"); dt.textContent = k;
+    const dd = document.createElement("dd"); dd.textContent = String(v);
+    return [dt, dd];
+  }));
+}
+
+function setStatus(text, error = false) { $("status").textContent = text; $("status").classList.toggle("error", error); }
+function setBar(frac) { $("bar").style.width = `${Math.round(Math.max(0, Math.min(1, frac)) * 100)}%`; }
+
+function stats(t) {
+  const a = [...t].sort((x, y) => x - y), n = a.length;
+  const mean = a.reduce((s, v) => s + v, 0) / n;
+  const std = Math.sqrt(a.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1));
+  const q = (p) => { const i = (n - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); };
+  return { mean, std, median: q(0.5), p95: q(0.95), min: a[0], runs: n };
+}
+const f1 = (v) => v.toFixed(1);
+
+async function fetchModel(url, onProgress) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`could not download ${url} (HTTP ${res.status})`);
+  const total = Number(res.headers.get("content-length")) || 0;
+  if (!res.body || !total) return new Uint8Array(await res.arrayBuffer());
+  const reader = res.body.getReader(), parts = []; let got = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; onProgress(got / total); }
+  const out = new Uint8Array(got); let off = 0; for (const p of parts) { out.set(p, off); off += p.length; }
+  return out;
+}
+// the models are stored as base64 text, because artifacts serve text files but not raw .onnx files
+function fromBase64(bytes) {
+  const bin = atob(new TextDecoder().decode(bytes).trim());
+  const out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function renderResults(results) {
+  $("results").replaceChildren(...MODELS.map((m) => {
+    const r = results[m.key]; const tr = document.createElement("tr");
+    const cells = r ? [m.name, f1(r.mean), f1(r.std), f1(r.median), f1(r.p95), r.checkOk ? "matches" : "differs"]
+                    : [m.name, "–", "–", "–", "–", "–"];
+    cells.forEach((c, i) => { const td = document.createElement("td"); td.textContent = c;
+      if (i === 5 && r) td.className = r.checkOk ? "ok" : "fail"; tr.appendChild(td); });
+    return tr;
+  }));
+  const a = results.mobilenetv2, b = results.mobilevit_xs;
+  if (a && b) $("ratio").innerHTML = `On this device MobileViT-XS took <strong>${(b.mean / a.mean).toFixed(2)}×</strong> as long as MobileNetV2 per image (paper, Colab CPU core: 1.72×; T4 GPU: 1.64×).`;
+}
+
+async function benchmark() {
+  $("run").disabled = true; $("copy").disabled = true; $("saved-note").textContent = "";
+  let wake = null; try { wake = await navigator.wakeLock?.request("screen"); } catch (e) { /* optional */ }
+  try {
+    if (typeof ort === "undefined") throw new Error("the ONNX runtime script did not load; check the internet connection and reload");
+    ort.env.wasm.numThreads = 1;
+    ort.env.wasm.proxy = false;
+    ort.env.wasm.wasmPaths = new URL("ort/", document.baseURI).href;
+    const results = {}, steps = MODELS.length * (1 + WARMUP + RUNS + 1); let done = 0;
+    for (const m of MODELS) {
+      setStatus(`Downloading ${m.name}…`);
+      const t0 = performance.now();
+      const bytes = fromBase64(await fetchModel(m.file, (p) => setBar((done + p) / steps)));
+      const session = await ort.InferenceSession.create(bytes, { executionProviders: ["wasm"], graphOptimizationLevel: "all" });
+      const loadMs = performance.now() - t0; done += 1;
+      const shape = [1, 3, m.size, m.size], n = 3 * m.size * m.size;
+      const check = await session.run({ pixel_values: new ort.Tensor("float32", new Float32Array(n).fill(0.5), shape) });
+      const logits = check.logits.data; let top = 0; for (let i = 1; i < logits.length; i++) if (logits[i] > logits[top]) top = i;
+      const checkOk = top === m.ref.top && Math.abs(logits[top] - m.ref.logit) < 0.05;
+      const data = new Float32Array(n); for (let i = 0; i < n; i++) data[i] = Math.random();
+      const feeds = { pixel_values: new ort.Tensor("float32", data, shape) };
+      for (let i = 0; i < WARMUP; i++) { setStatus(`${m.name}: warm-up ${i + 1} of ${WARMUP}`); await session.run(feeds); done += 1; setBar(done / steps); }
+      const times = [];
+      for (let i = 0; i < RUNS; i++) {
+        const s = performance.now(); await session.run(feeds); times.push(performance.now() - s);
+        done += 1; if (i % 5 === 4) { setStatus(`${m.name}: timed run ${i + 1} of ${RUNS}`); setBar(done / steps); }
+      }
+      results[m.key] = { ...stats(times), loadMs, checkOk, top, logit: logits[top] };
+      await session.release?.(); done += 1; setBar(done / steps); renderResults(results);
+    }
+    lastRun = { device: $("device-name").value.trim() || "unnamed device", when: new Date().toISOString(),
+                runtime: RUNTIME, crossOriginIsolated: !!self.crossOriginIsolated, ...deviceInfo(), results };
+    setStatus("Done. Results below.");
+    $("copy").disabled = false;
+  } catch (e) {
+    setStatus(`The benchmark stopped: ${e && e.message ? e.message : e}`, true);
+  } finally {
+    $("run").disabled = false; try { await wake?.release(); } catch (e) { /* ignore */ }
+  }
+}
+
+function summary(run) {
+  const r = run.results, lines = [`Device: ${run.device}`, `When: ${run.when}`, `Runtime: ${run.runtime}`,
+    `CPU threads: ${run.cores ?? "?"}, memory: ${run.memoryGB ?? "?"} GB`, `Browser: ${run.userAgent}`];
+  for (const m of MODELS) if (r[m.key]) { const s = r[m.key];
+    lines.push(`${m.name}: mean ${f1(s.mean)} ms, std ${f1(s.std)}, median ${f1(s.median)}, p95 ${f1(s.p95)}, load ${Math.round(s.loadMs)} ms, check ${s.checkOk ? "ok" : "FAILED"}`); }
+  if (r.mobilenetv2 && r.mobilevit_xs) lines.push(`Ratio MViT/MNv2: ${(r.mobilevit_xs.mean / r.mobilenetv2.mean).toFixed(2)}`);
+  return lines.join("\n");
+}
+
+async function copyResults() {
+  if (!lastRun) return;
+  const text = summary(lastRun);
+  try { await navigator.clipboard.writeText(text); $("saved-note").textContent = "Copied."; }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = text; ta.style.width = "100%"; ta.rows = 8; ta.id = "copy-fallback";
+    $("copy").parentElement.after(ta); ta.select(); $("saved-note").textContent = "Select the text below and copy it.";
+  }
+}
+
+renderDevice();
+$("run").addEventListener("click", benchmark);
+$("copy").addEventListener("click", copyResults);
+</script>
