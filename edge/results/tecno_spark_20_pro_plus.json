@@ -4,11 +4,32 @@
   "platform": "Android",
   "cores": 8,
   "memoryGB": 8,
-  "userAgent": "Mozilla/5.0 (Linux; Android 14; TECNO KJ7 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/157.0.8103.50 Mobile Safari/537.36 Claude/1.261120.19",
+  "userAgent": "Mozilla/5.0 (Linux; Android 14; TECNO KJ7 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/157.0.8103.50 Mobile Safari/537.36",
   "runtime": "onnxruntime-web 1.20.1, WebAssembly SIMD, 1 thread, FP32",
   "crossOriginIsolated": false,
   "results": {
-    "mobilenetv2": {"mean": 109.302, "std": 3.4157, "median": 108.5, "p95": 117.305, "min": 106.4, "runs": 100, "checkOk": true, "top": 10, "logit": 3.01958},
-    "mobilevit_xs": {"mean": 352.451, "std": 14.6087, "median": 345.4, "p95": 386.65, "min": 339.9, "runs": 100, "checkOk": true, "top": 10, "logit": 9.67845}
-  }
+    "mobilenetv2": {
+      "mean": 109.302,
+      "std": 3.4157,
+      "median": 108.5,
+      "p95": 117.305,
+      "min": 106.4,
+      "runs": 100,
+      "checkOk": true,
+      "top": 10,
+      "logit": 3.01958
+    },
+    "mobilevit_xs": {
+      "mean": 352.451,
+      "std": 14.6087,
+      "median": 345.4,
+      "p95": 386.65,
+      "min": 339.9,
+      "runs": 100,
+      "checkOk": true,
+      "top": 10,
+      "logit": 9.67845
+    }
+  },
+  "browser": "Android System WebView (Chrome 157)"
 }

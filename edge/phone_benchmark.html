@@ -1,5 +1,4 @@
 <title>Leaf Model Phone Benchmark</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -116,15 +115,11 @@ ul.saved .meta { color: var(--muted); font-size: 0.8rem; }
     <p class="ratio" id="ratio">Run the benchmark to see how much slower MobileViT-XS is on this device.</p>
     <div class="row">
       <button id="copy" type="button" class="secondary" disabled>Copy results</button>
-      <span class="note" id="saved-note"></span>
+      <span class="note" id="saved-note">Copy the results after a run and send them to the team.</span>
     </div>
     <p class="note">Output check: both models are given a fixed grey test image and must return the same top class and score as the original PyTorch model (class 10, score 3.02 for MobileNetV2 and 9.68 for MobileViT-XS).</p>
   </section>
 
-  <section class="panel" aria-labelledby="saved-h">
-    <h2 id="saved-h">Saved runs</h2>
-    <ul class="saved" id="saved"><li class="meta">No runs saved yet. Results are saved here automatically after each run.</li></ul>
-  </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.wasm.min.js"></script>
@@ -136,7 +131,7 @@ const MODELS = [
 const WARMUP = 10, RUNS = 100;
 const RUNTIME = "onnxruntime-web 1.20.1, WebAssembly SIMD, 1 thread, FP32";
 const $ = (id) => document.getElementById(id);
-let lastRun = null, db = null;
+let lastRun = null;
 
 function deviceInfo() {
   const ua = navigator.userAgent;
@@ -234,7 +229,6 @@ async function benchmark() {
                 runtime: RUNTIME, crossOriginIsolated: !!self.crossOriginIsolated, ...deviceInfo(), results };
     setStatus("Done. Results below.");
     $("copy").disabled = false;
-    await saveRun(lastRun);
   } catch (e) {
     setStatus(`The benchmark stopped: ${e && e.message ? e.message : e}`, true);
   } finally {
@@ -261,33 +255,7 @@ async function copyResults() {
   }
 }
 
-async function saveRun(run) {
-  if (!db) { $("saved-note").textContent = "Not saved (storage is not available in this view). Use Copy results."; return; }
-  try { await db.collection("runs").add(run); $("saved-note").textContent = "Saved."; }
-  catch (e) { $("saved-note").textContent = "Could not save this run. Use Copy results instead."; }
-}
-
-function renderSaved(docs) {
-  const list = $("saved");
-  if (!docs.length) { list.replaceChildren(Object.assign(document.createElement("li"), { className: "meta", textContent: "No runs saved yet. Results are saved here automatically after each run." })); return; }
-  list.replaceChildren(...docs.map((d) => {
-    const run = d.data() || {}, r = run.results || {}, li = document.createElement("li");
-    const head = document.createElement("span");
-    const a = r.mobilenetv2, b = r.mobilevit_xs;
-    head.textContent = `${run.device || "unnamed device"}: MobileNetV2 ${a ? f1(a.mean) : "–"} ms, MobileViT-XS ${b ? f1(b.mean) : "–"} ms` + (a && b ? ` (${(b.mean / a.mean).toFixed(2)}×)` : "");
-    const meta = document.createElement("span"); meta.className = "meta";
-    meta.textContent = `${run.when ? new Date(run.when).toLocaleString() : ""} · ${run.cores ?? "?"} threads · ${run.platform || ""}`;
-    li.append(head, meta); return li;
-  }));
-}
-
 renderDevice();
 $("run").addEventListener("click", benchmark);
 $("copy").addEventListener("click", copyResults);
-(async () => {
-  try { db = await window.claude?.use?.("db"); } catch (e) { db = null; }
-  if (!db) { $("saved").replaceChildren(Object.assign(document.createElement("li"), { className: "meta", textContent: "Saved runs are not available in this view. Use Copy results after a run." })); return; }
-  db.collection("runs").orderBy("when", "desc").limit(20).onSnapshot((snap) => renderSaved(snap.docs),
-    () => { $("saved").replaceChildren(Object.assign(document.createElement("li"), { className: "meta", textContent: "Could not load saved runs." })); });
-})();
 </script>
