@@ -381,9 +381,52 @@
 \author{}
 
 \maketitle
+
+\begin{abstract}
+Lightweight hybrid CNN-ViT models are increasingly proposed for on-device plant disease diagnosis, but they are rarely compared with a lightweight CNN under identical conditions on both accuracy and deployment cost. This paper compares MobileNetV2 with the hybrid MobileViT-XS on the PlantVillage dataset. Near-duplicate images that leaked between the original training and validation folders were grouped, and the 54,304 images were re-split into stratified, duplicate-aware training, validation and test sets. Both ImageNet-pretrained models were fine-tuned with the same protocol and three random seeds. They were evaluated on accuracy, macro-F1, parameter count, model size, operation count, latency on a GPU, a CPU core and a smartphone, robustness to image degradation, and sensitivity to input normalisation. MobileViT-XS reached a test accuracy of 99.68 $\pm$ 0.02\% against 99.47 $\pm$ 0.06\% for MobileNetV2, made about 40\% fewer errors and had 14\% fewer parameters. It required, however, 3.4 times the multiply-accumulate operations, was 1.6 to 1.7 times slower on the GPU and CPU used for training, and 3.2 times slower on a mid-range Android smartphone (352 against 109\,ms per image). Neither model was more robust overall to synthetic degradation. The hybrid model therefore offers a small but consistent accuracy gain at a latency cost that depends strongly on the target runtime, so the preferable architecture depends on the deployment constraint.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Plant disease classification, edge deployment, MobileNetV2, MobileViT, vision transformer, inference latency, PlantVillage.
+\end{IEEEkeywords}
+
 \IEEEpeerreviewmaketitle
 
+\section{Introduction}
+
+\subsection{Importance}
+
+Plant diseases destroy a substantial share of global crop yield every year, threatening food security and rural incomes, and their impact is heaviest precisely where diagnostic expertise is scarcest: smallholder farms in low- and middle-income regions~\cite{mohanty2016plant}. Because disease symptoms often spread quickly across a field, the value of a diagnosis falls sharply with delay, which is why early, on-the-spot identification is treated as a priority in precision-agriculture research~\cite{tonmoy2025mobileplantvit}.
+
+\subsection{Background}
+
+Deep learning has been the dominant tool for automating this diagnosis since Mohanty et al.~\cite{mohanty2016plant} showed that a convolutional neural network (CNN) fine-tuned on the PlantVillage dataset could identify 26 diseases across 14 crop species with 99.35\% accuracy. That result opened two, largely separate research threads. The first pursued raw accuracy, first with deeper CNNs and later with Vision Transformers (ViTs)~\cite{dosovitskiy2021vit}, which replace convolution with global self-attention and have matched or exceeded CNN accuracy on large-scale benchmarks, though at higher parameter counts and data requirements. The second thread optimized CNNs for the resource-constrained hardware on which a working diagnostic tool must actually run (smartphones and embedded field sensors), producing architectures such as MobileNetV2~\cite{sandler2018mobilenetv2} and ShuffleNet V2~\cite{ma2018shufflenetv2}, whose designers explicitly showed that FLOPs alone are a poor proxy for real device latency. Hybrid CNN-ViT architectures, most notably MobileViT~\cite{mehta2022mobilevit} and its faster successor MobileViTv2~\cite{mehta2022mobilevitv2}, were proposed to bridge these threads by combining convolutional local feature extraction with transformer-based global context at mobile-friendly parameter budgets. This hybrid idea has since been adapted directly to plant disease classification, yielding models such as PMVT~\cite{li2023pmvt} and MobilePlantViT~\cite{tonmoy2025mobileplantvit}, which report strong accuracy at very low parameter counts.
+
+\subsection{Problem Statement}
+
+Despite this progress, it remains unclear whether the accuracy gained by adopting a hybrid CNN-ViT architecture for plant disease classification is large enough, in a given deployment setting, to justify the model size and inference-latency cost it adds relative to a purely convolutional lightweight baseline. Reported results across the literature are difficult to compare directly because studies vary in dataset difficulty (controlled PlantVillage imagery versus field-collected ``in-the-wild'' images~\cite{kumar2025mobilefriendly}), in which deployability metrics they report, and in whether latency is measured on real hardware or approximated through FLOPs~\cite{ma2018shufflenetv2}. Stated precisely, the problem this project addresses is the following: given the same plant disease classification task and dataset (PlantVillage), it is unclear whether a hybrid CNN-ViT model (MobileViT) provides a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2), that is, whether any accuracy improvement it offers is large enough to justify the increased model size and inference latency it adds for edge deployment.
+
+\subsection{Research Gap}
+
+Synthesizing across the fifteen studies reviewed in Section~\ref{sec:lit}, the recurring gap is that no reviewed paper benchmarks a hybrid CNN-ViT model and a pure lightweight CNN on the same plant disease dataset, under identical training conditions, across all four deployability axes used in general-purpose architecture research: accuracy, model size, FLOPs, and measured inference latency. Plant-disease-specific papers report accuracy, and sometimes parameter count, but rarely benchmark inference latency, model size, and FLOPs together against a matched lightweight CNN baseline trained under identical conditions~\cite{mohanty2016plant,thakur2023vitcnn,li2023pmvt,tonmoy2025mobileplantvit,karthikeyan2025cnnseeib,pal2025mobres,baek2025multivit,murugavalli2025plavit,aboelenin2025hybrid}. Where deployability is benchmarked rigorously across accuracy, latency, parameters and FLOPs together, it is almost always on generic ImageNet-scale vision tasks rather than on plant disease data~\cite{dosovitskiy2021vit,sandler2018mobilenetv2,ma2018shufflenetv2,mehta2022mobilevit,mehta2022mobilevitv2}. This leaves a gap between architecture-design papers, which quantify the accuracy-latency trade-off in general, and plant-disease papers, which mostly quantify accuracy alone.
+
+\subsection{Evidence}
+
+The trade-off this project investigates is visible even across the papers surveyed here. MobileViT reports a 3.2-percentage-point accuracy gain over MobileNetV3 at a comparable parameter count~\cite{mehta2022mobilevit}, but its successor, MobileViTv2, exists specifically because the original MobileViT's self-attention operations made it slower on-device than its FLOP count implied, a redesign that bought a 3.2$\times$ latency reduction~\cite{mehta2022mobilevitv2}. On plant disease data specifically, results diverge sharply by dataset difficulty: models evaluated on the controlled PlantVillage images report accuracies above 99\%~\cite{mohanty2016plant,karthikeyan2025cnnseeib,pal2025mobres}, while the same class of lightweight architectures evaluated on combined field datasets (PlantDoc, PlantVillage, PlantWild) top out closer to 94.7\%~\cite{kumar2025mobilefriendly}, and the smallest hybrid ViT surveyed, MobilePlantViT (0.69M parameters), reports accuracies ranging from 80\% to over 99\% depending on the dataset~\cite{tonmoy2025mobileplantvit}, evidence that parameter-count reduction alone does not guarantee that accuracy holds.
+
+\subsection{Aims}
+
+This project aims to determine, for plant disease classification specifically, whether a hybrid CNN-ViT architecture (MobileViT) offers a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2) when both are fine-tuned under identical conditions on the same dataset.
+
+\subsection{Objectives}
+
+To this end, the project (i) fine-tuned MobileNetV2 and MobileViT-XS on the PlantVillage dataset under matched training conditions; (ii) benchmarked both models on accuracy, F1-score, model size, FLOPs and inference latency, including latency on a smartphone; (iii) quantified and visualized the resulting accuracy-versus-deployability trade-off; and (iv) derived an evidence-based recommendation on which architecture is preferable under different edge-deployment constraints.
+
+The remainder of the paper is organized as follows. Section~\ref{sec:lit} reviews related work. Section~\ref{sec:method} describes the data, models, training protocol and evaluation metrics. Section~\ref{sec:results} presents six experiments and their results. Section~\ref{sec:discussion} interprets the results, relates them to the objectives and to previous work, and discusses limitations and future work. Section~\ref{sec:conclusion} concludes the paper.
+
+
 \section{Literature Review}
+\label{sec:lit}
 
 Table~\ref{tab:survey} surveys fifteen studies, twelve of which were published in 2021 or later (nine of them in 2023--2025), spanning the foundational CNN and ViT architectures used in this project (MobileNetV2, MobileViT / MobileViTv2, ShuffleNet V2, and the original ViT), the PlantVillage baseline literature, and recent hybrid CNN-ViT and lightweight-ViT approaches applied specifically to plant disease classification. For each study the table reports the method, dataset, evaluation metrics used, the headline performance score(s), and the key limitation(s) noted by the authors or evident from the reported evaluation.
 
@@ -433,7 +476,7 @@ Aboelenin et al.~\cite{aboelenin2025hybrid} & 2025 & Hybrid framework: CNN ensem
 \end{tabular}
 \end{table*}
 
-\section{Critical Discussion of the Reviewed Literature}
+The studies in Table~\ref{tab:survey} fall into five groups, which are discussed below.
 
 \subsection{Foundational efficiency-oriented CNN architectures}
 
@@ -456,39 +499,7 @@ This is the cluster most directly relevant to the project's research question: T
 Kumar et al.~\cite{kumar2025mobilefriendly} is the only reviewed paper that benchmarks several lightweight CNNs directly against each other on a combined, field-realistic dataset (PlantDoc + PlantVillage + PlantWild) rather than lab-only PlantVillage imagery. Its substantially lower accuracy ceiling (94.7\%, versus the $>$99\% figures reported elsewhere in Table~\ref{tab:survey}) is an important caution for interpreting the PlantVillage-only results throughout the rest of the literature. This project scopes its own evaluation to PlantVillage alone, but explicitly notes this caution as a limitation to be addressed in future work rather than within the present study.
 
 \FloatBarrier
-\clearpage
 
-\section{Introduction}
-
-\subsection{Importance}
-
-Plant diseases destroy a substantial share of global crop yield every year, threatening food security and rural incomes, and their impact is heaviest precisely where diagnostic expertise is scarcest: smallholder farms in low- and middle-income regions~\cite{mohanty2016plant}. Because disease symptoms often spread quickly across a field, the value of a diagnosis falls sharply with delay, which is why early, on-the-spot identification is treated as a priority in precision-agriculture research~\cite{tonmoy2025mobileplantvit}.
-
-\subsection{Background}
-
-Deep learning has been the dominant tool for automating this diagnosis since Mohanty et al.~\cite{mohanty2016plant} showed that a convolutional neural network (CNN) fine-tuned on the PlantVillage dataset could identify 26 diseases across 14 crop species with 99.35\% accuracy. That result opened two, largely separate research threads. The first pursued raw accuracy, first with deeper CNNs and later with Vision Transformers (ViTs)~\cite{dosovitskiy2021vit}, which replace convolution with global self-attention and have matched or exceeded CNN accuracy on large-scale benchmarks, though at higher parameter counts and data requirements. The second thread optimized CNNs for the resource-constrained hardware on which a working diagnostic tool must actually run (smartphones and embedded field sensors), producing architectures such as MobileNetV2~\cite{sandler2018mobilenetv2} and ShuffleNet V2~\cite{ma2018shufflenetv2}, whose designers explicitly showed that FLOPs alone are a poor proxy for real device latency. Hybrid CNN-ViT architectures, most notably MobileViT~\cite{mehta2022mobilevit} and its faster successor MobileViTv2~\cite{mehta2022mobilevitv2}, were proposed to bridge these threads by combining convolutional local feature extraction with transformer-based global context at mobile-friendly parameter budgets. This hybrid idea has since been adapted directly to plant disease classification, yielding models such as PMVT~\cite{li2023pmvt} and MobilePlantViT~\cite{tonmoy2025mobileplantvit}, which report strong accuracy at very low parameter counts.
-
-\subsection{Problem Statement}
-
-Despite this progress, it remains unclear whether the accuracy gained by adopting a hybrid CNN-ViT architecture for plant disease classification is large enough, in a given deployment setting, to justify the model size and inference-latency cost it adds relative to a purely convolutional lightweight baseline. Reported results across the literature are difficult to compare directly because studies vary in dataset difficulty (controlled PlantVillage imagery versus field-collected ``in-the-wild'' images~\cite{kumar2025mobilefriendly}), in which deployability metrics they report, and in whether latency is measured on real hardware or approximated through FLOPs~\cite{ma2018shufflenetv2}. Stated precisely, the problem this project addresses is the following: given the same plant disease classification task and dataset (PlantVillage), it is unclear whether a hybrid CNN-ViT model (MobileViT) provides a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2), that is, whether any accuracy improvement it offers is large enough to justify the increased model size and inference latency it adds for edge deployment.
-
-\subsection{Research Gap}
-
-Synthesizing across the fifteen studies reviewed, the recurring gap is that no reviewed paper benchmarks a hybrid CNN-ViT model and a pure lightweight CNN on the same plant disease dataset, under identical training conditions, across all four deployability axes used in general-purpose architecture research: accuracy, model size, FLOPs, and measured inference latency. Plant-disease-specific papers report accuracy, and sometimes parameter count, but rarely benchmark inference latency, model size, and FLOPs together against a matched lightweight CNN baseline trained under identical conditions~\cite{mohanty2016plant,thakur2023vitcnn,li2023pmvt,tonmoy2025mobileplantvit,karthikeyan2025cnnseeib,pal2025mobres,baek2025multivit,murugavalli2025plavit,aboelenin2025hybrid}. Where deployability is benchmarked rigorously across accuracy, latency, parameters and FLOPs together, it is almost always on generic ImageNet-scale vision tasks rather than on plant disease data~\cite{dosovitskiy2021vit,sandler2018mobilenetv2,ma2018shufflenetv2,mehta2022mobilevit,mehta2022mobilevitv2}. This leaves a gap between architecture-design papers, which quantify the accuracy-latency trade-off in general, and plant-disease papers, which mostly quantify accuracy alone.
-
-\subsection{Evidence}
-
-The trade-off this project investigates is visible even across the papers surveyed here. MobileViT reports a 3.2-percentage-point accuracy gain over MobileNetV3 at a comparable parameter count~\cite{mehta2022mobilevit}, but its successor, MobileViTv2, exists specifically because the original MobileViT's self-attention operations made it slower on-device than its FLOP count implied, a redesign that bought a 3.2$\times$ latency reduction~\cite{mehta2022mobilevitv2}. On plant disease data specifically, results diverge sharply by dataset difficulty: models evaluated on the controlled PlantVillage images report accuracies above 99\%~\cite{mohanty2016plant,karthikeyan2025cnnseeib,pal2025mobres}, while the same class of lightweight architectures evaluated on combined field datasets (PlantDoc, PlantVillage, PlantWild) top out closer to 94.7\%~\cite{kumar2025mobilefriendly}, and the smallest hybrid ViT surveyed, MobilePlantViT (0.69M parameters), reports accuracies ranging from 80\% to over 99\% depending on the dataset~\cite{tonmoy2025mobileplantvit}, evidence that parameter-count reduction alone does not guarantee that accuracy holds.
-
-\subsection{Aims}
-
-This project aims to determine, for plant disease classification specifically, whether a hybrid CNN-ViT architecture (MobileViT) offers a deployability-adjusted advantage over a pure lightweight CNN (MobileNetV2) when both are fine-tuned under identical conditions on the same dataset.
-
-\subsection{Objectives}
-
-To this end, the project will (i) fine-tune MobileNetV2 and MobileViT on the PlantVillage dataset under matched training conditions; (ii) benchmark both models on accuracy, F1-score, model size, FLOPs, and inference latency; (iii) quantify and visualize the resulting accuracy-vs-deployability trade-off; and (iv) provide an evidence-based recommendation on which architecture is preferable under different edge-deployment constraints.
-
-\clearpage
 \section{Methodology and Experimental Setup}
 \label{sec:method}
 
@@ -635,6 +646,8 @@ Model performance was evaluated using a combination of predictive accuracy metri
 
 \textbf{Inference latency} was measured as the average wall-clock time required to process a single image, timed on the same hardware used for training. For each model, 10 warm-up runs were followed by 100 timed runs with a batch size of 1. Only the forward pass was timed, without image loading or preprocessing. Latency was measured on the T4 GPU in FP32 and FP16, and on the CPU of the same machine with one thread, since this machine exposes a single physical CPU core. The single-thread CPU figure is the closest stand-in for one core of a mobile processor. Both models were measured one after the other in the same session.
 
+\textbf{On-device latency:} To measure latency on an edge device, the seed-42 models of both architectures were exported to the ONNX format (opset 18). The exported models reproduced the PyTorch outputs to within $1.2\times10^{-5}$ and gave the same predictions. They were run with ONNX Runtime Web 1.20.1~\cite{onnxruntime} (WebAssembly with SIMD instructions, one thread, FP32) in the Android browser engine of a Tecno Spark 20 Pro+ smartphone (Android 14, eight CPU cores, 8\,GB of memory). The timing protocol was the same as above: 10 warm-up runs followed by 100 timed runs of one image. Before timing, each model classified a fixed uniform test input on the phone, and its top class and score were compared with those of the PyTorch model to confirm that the phone computed the same function.
+
 Latency is included specifically because, as established in the literature review, FLOPs and parameter count are not reliable proxies for real-world inference speed; measuring latency directly is necessary to assess true edge-deployment suitability.
 
 \textbf{Statistical comparison:} Because both models were tested on the same images, the difference between them was tested per seed with the exact McNemar test~\cite{mcnemar1947}, which only considers images that exactly one of the two models classified correctly. A 95\% confidence interval for the difference in accuracy and in macro-F1 was computed with 2,000 paired bootstrap resamples of the test set~\cite{efron1993bootstrap}.
@@ -642,7 +655,6 @@ Latency is included specifically because, as established in the literature revie
 Together, these metrics allow the study to evaluate not only which model classifies plant diseases more accurately, but whether any accuracy advantage is large enough to justify its cost in model size, computational complexity, and real-world inference speed, directly addressing the research question stated.
 \FloatBarrier
 
-\clearpage
 \section{Experiments and Results}
 \label{sec:results}
 
@@ -659,7 +671,7 @@ This section presents the experiments that were carried out to answer the resear
 \hline
 E1 & Classification performance (baseline comparison) & Compare test accuracy, precision, recall and F1 of the two models over three seeds, and test whether the difference is significant. \\
 \hline
-E2 & Deployability benchmark & Measure parameters, file size, FLOPs, latency, throughput, memory and training cost. \\
+E2 & Deployability benchmark & Measure parameters, file size, FLOPs, latency on a GPU, a CPU core and a smartphone, throughput, memory and training cost. \\
 \hline
 E3 & Accuracy versus cost & Relate the accuracy difference from E1 to the cost difference from E2. \\
 \hline
@@ -674,7 +686,7 @@ E6 & Preprocessing ablation & Retrain both models with the ImageNet normalisatio
 
 \subsection{Experimental Conditions}
 
-All experiments used the fixed split of Section~\ref{sec:data} and the training protocol of Section~\ref{sec:method}. Every reported test result comes from the checkpoint with the lowest validation loss of its run, evaluated once on the 5,431 test images. Unless stated otherwise, results are the mean $\pm$ sample standard deviation over three training runs with seeds 42, 43 and 44. All training and all timing measurements were performed on an NVIDIA Tesla T4 GPU in Google Colab. The Colab software image was updated between sessions, so the runs used PyTorch 2.11 to 2.14 with Transformers 5.22. The deployability benchmark ran in a single session with PyTorch 2.14.
+All experiments used the fixed split of Section~\ref{sec:data} and the training protocol of Section~\ref{sec:method}. Every reported test result comes from the checkpoint with the lowest validation loss of its run, evaluated once on the 5,431 test images. Unless stated otherwise, results are the mean $\pm$ sample standard deviation over three training runs with seeds 42, 43 and 44. All training and the GPU and CPU timing measurements were performed on an NVIDIA Tesla T4 GPU in Google Colab; the on-device measurement used a smartphone (Section~\ref{sec:metrics}). The Colab software image was updated between sessions, so the runs used PyTorch 2.11 to 2.14 with Transformers 5.22. The deployability benchmark ran in a single session with PyTorch 2.14.
 
 \subsection{E1: Classification Performance}
 \label{sec:e1}
@@ -713,6 +725,28 @@ Table~\ref{tab:deploy} shows the results. MobileViT-XS has 14\% fewer parameters
 
 The measured latency did not grow as fast as the operation count. On the GPU, one image took 13.2 $\pm$ 1.4\,ms with MobileViT-XS and 8.0 $\pm$ 1.2\,ms with MobileNetV2, a ratio of 1.6. On the CPU with one thread, the times were 72.7 $\pm$ 12.8\,ms and 42.2 $\pm$ 12.3\,ms, a ratio of 1.7. The CPU of the Colab machine exposes a single physical core, so a multi-threaded CPU measurement was not possible. FP16 mixed precision did not reduce latency at a batch size of one: both models were slower in FP16 than in FP32 (16.7\,ms and 9.5\,ms). With a batch of 32 images, MobileNetV2 processed 815 images per second on the GPU and MobileViT-XS 425, so MobileNetV2 had 1.9 times the throughput. MobileViT-XS also needed more GPU memory at inference time (19.8\,MiB against 11.8\,MiB for one image, and 632\,MiB against 378\,MiB for a batch of 32).
 
+\begin{table}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Latency of One Image on Three Platforms (E2)}
+\label{tab:platforms}
+\begin{tabular}{lrrr}
+\toprule
+Platform and runtime & MNv2 (ms) & MViT (ms) & Ratio \\
+\midrule
+T4 GPU, PyTorch, FP32 & 8.0 $\pm$ 1.2 & 13.2 $\pm$ 1.4 & 1.64 \\
+Colab CPU, 1 core, PyTorch & 42.2 $\pm$ 12.3 & 72.7 $\pm$ 12.8 & 1.72 \\
+Smartphone, ONNX Runtime Web & 109.3 $\pm$ 3.4 & 352.5 $\pm$ 14.6 & 3.22 \\
+\midrule
+Operations (GMACs) & 0.30 & 1.03 & 3.42 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\parbox{\linewidth}{\scriptsize Mean $\pm$ std of 100 timed runs after 10 warm-up runs, batch size 1, seed-42 models, preprocessing excluded. Smartphone: Tecno Spark 20 Pro+ (Android 14), ONNX Runtime Web 1.20.1, WebAssembly SIMD, one thread, FP32. Ratio: MobileViT-XS divided by MobileNetV2.}
+\end{table}
+
+Table~\ref{tab:platforms} adds the measurement on the smartphone. On the phone, one image took 109.3 $\pm$ 3.4\,ms with MobileNetV2 and 352.5 $\pm$ 14.6\,ms with MobileViT-XS, a ratio of 3.2. This ratio is about twice the ratio measured with PyTorch on the Colab GPU and CPU, and close to the ratio of the operation counts (3.4). On the phone, both models returned the same top class and score as the PyTorch models for the fixed check input (difference below 0.001).
+
 \inputtable{training_cost}
 
 Training cost is shown in Table~\ref{tab:traincost}. One MobileViT-XS epoch took 252 $\pm$ 1 seconds against 165 $\pm$ 1 seconds for MobileNetV2, so a full 10-epoch run took 43.5 minutes against 28.7 minutes, 1.5 times as long. MobileViT-XS also needed 2.2 times as much GPU memory during training (2,879\,MiB against 1,317\,MiB at batch size 32). Its throughput during training was 172 images per second against 263. The training throughput of MobileNetV2 was probably limited by the two CPU cores that decode the images, so the true GPU cost ratio during training may be larger than 1.5.
@@ -727,7 +761,7 @@ The purpose of E3 is to relate the accuracy gained by MobileViT-XS in E1 to the 
 
 \fig{e3_tradeoff}{Test accuracy (mean $\pm$ standard deviation over three seeds) against parameter count, operations per image, single-thread CPU latency and GPU latency. Lower cost is to the left.}{fig:tradeoff}
 
-MobileViT-XS improves accuracy by 0.21 percentage points and macro-F1 by 0.29 points, which removes about 11 of every 29 errors made by MobileNetV2. In exchange, it is 1.6 times slower per image on the GPU, 1.7 times slower on one CPU thread, has about half the GPU throughput, and needs 3.4 times the operations per image, 1.5 times the training time and 2.2 times the training memory. Parameter count and file size are the only measures on which MobileViT-XS is cheaper, by 14\% and 15\%. This agrees with the observation in the literature that parameter count alone does not describe deployment cost~\cite{ma2018shufflenetv2,mehta2022mobilevitv2}. In absolute terms, both models classify one image in less than 75\,ms on one CPU core of the Colab machine.
+MobileViT-XS improves accuracy by 0.21 percentage points and macro-F1 by 0.29 points, which removes about 11 of every 29 errors made by MobileNetV2. In exchange, it is 1.6 times slower per image on the GPU, 1.7 times slower on one CPU thread and 3.2 times slower on the smartphone, has about half the GPU throughput, and needs 3.4 times the operations per image, 1.5 times the training time and 2.2 times the training memory. Parameter count and file size are the only measures on which MobileViT-XS is cheaper, by 14\% and 15\%. This agrees with the observation in the literature that parameter count alone does not describe deployment cost~\cite{ma2018shufflenetv2,mehta2022mobilevitv2}. In absolute terms, both models classify one image in less than 75\,ms on one CPU core of the Colab machine, and in 0.11\,s (MobileNetV2) and 0.35\,s (MobileViT-XS) on the smartphone.
 
 \FloatBarrier
 \subsection{E4: Qualitative Results}
@@ -782,12 +816,71 @@ Table~\ref{tab:ablation} shows that both models were slightly less accurate with
 \FloatBarrier
 \subsection{Summary of Results}
 
-The experiments give the following answers. MobileViT-XS was the more accurate model, with a test accuracy of 99.68 $\pm$ 0.02\% and a macro-F1 of 99.46 $\pm$ 0.03\%, against 99.47 $\pm$ 0.06\% and 99.17 $\pm$ 0.07\% for MobileNetV2 (E1). It made about 40\% fewer errors and was better in every seed, although the per-seed difference was statistically significant in two of the three seeds. This gain came at a clear deployment cost (E2, E3): MobileViT-XS was 1.6 times slower on the GPU and 1.7 times slower on one CPU core, had about half the throughput, needed 3.4 times the operations, and took 1.5 times as long and 2.2 times as much memory to train. Only its parameter count and file size were smaller, by about 15\%. Most errors of both models were confusions between similar diseases of the same crop, mainly the two corn leaf-spot diseases (E4). Under image degradation neither model was more robust overall: MobileViT-XS was more robust to poor lighting and noise, and MobileNetV2 to blur and JPEG compression (E5). The normalisation planned in the proposal gave almost the same accuracy as the preprocessing of each checkpoint, and slightly lower accuracy for both models (E6).
+The experiments give the following answers. MobileViT-XS was the more accurate model, with a test accuracy of 99.68 $\pm$ 0.02\% and a macro-F1 of 99.46 $\pm$ 0.03\%, against 99.47 $\pm$ 0.06\% and 99.17 $\pm$ 0.07\% for MobileNetV2 (E1). It made about 40\% fewer errors and was better in every seed, although the per-seed difference was statistically significant in two of the three seeds. This gain came at a clear deployment cost (E2, E3): MobileViT-XS was 1.6 times slower on the GPU, 1.7 times slower on one CPU core and 3.2 times slower on a smartphone, had about half the throughput, needed 3.4 times the operations, and took 1.5 times as long and 2.2 times as much memory to train. Only its parameter count and file size were smaller, by about 15\%. Most errors of both models were confusions between similar diseases of the same crop, mainly the two corn leaf-spot diseases (E4). Under image degradation neither model was more robust overall: MobileViT-XS was more robust to poor lighting and noise, and MobileNetV2 to blur and JPEG compression (E5). The normalisation planned in the proposal gave almost the same accuracy as the preprocessing of each checkpoint, and slightly lower accuracy for both models (E6).
 
 \FloatBarrier
-\medskip
+\section{Discussion}
+\label{sec:discussion}
 
-\newpage
+\subsection{Interpretation of the Findings}
+
+\subsubsection{Accuracy and generalisation}
+The training curves (Fig.~\ref{fig:curves}) indicate that the accuracy advantage of MobileViT-XS reflects better generalisation rather than a closer fit to the training data. MobileNetV2 reached a lower training loss than MobileViT-XS (0.003 against 0.012 at epoch 10), yet its validation loss was higher (0.023 against 0.011) and rose again after its minimum in all three runs. MobileNetV2 therefore fitted the training images more closely but transferred less of this fit to unseen images, whereas the validation loss of MobileViT-XS was still decreasing when the 10-epoch budget ended.
+
+The per-class results show where the gain arises. It is concentrated in pairs of diseases of the same crop whose individual lesions look alike, in particular corn Cercospora leaf spot and Northern Leaf Blight (Tables~\ref{tab:perclass} and~\ref{tab:confusions}). Separating such diseases depends on how lesions are shaped and distributed over the whole leaf, and not only on local texture. The transformer layers of MobileViT exchange information across the entire feature map within one block~\cite{mehta2022mobilevit}, whereas the receptive field of MobileNetV2 grows only gradually through stacked convolutions~\cite{sandler2018mobilenetv2}. The wider Grad-CAM maps of MobileViT-XS (Fig.~\ref{fig:gradcam}) are consistent with this explanation, but maps of 7$\times$7 and 8$\times$8 cells are too coarse to confirm it. Part of the gain may also come from the larger input of MobileViT-XS (256$\times$256 against 224$\times$224 pixels), which this study did not separate from the architecture.
+
+\subsubsection{Size of the gain}
+Both models exceeded 99.4\% test accuracy. Because the dataset is close to its accuracy ceiling, the absolute difference is small: 0.21 percentage points, or about one test image in 480. In relative terms the hybrid model removed about 40\% of the errors, the difference had the same sign in every seed, and it was significant in two of the three seeds (Table~\ref{tab:stats}). The gain is therefore consistent but small, and a single training run would not have been sufficient to establish it.
+
+\subsubsection{Why parameters, operations and latency disagree}
+MobileViT-XS has 14\% fewer parameters but requires 3.4 times the multiply-accumulate operations of MobileNetV2 (Table~\ref{tab:deploy}). The two quantities measure different properties. A transformer layer applies the same weights at every position of the feature map, so its parameter count does not grow with the number of positions while its computation does, and MobileViT-XS in addition processes 31\% more pixels. Parameter count is therefore a poor guide to inference cost, as the literature has also observed~\cite{ma2018shufflenetv2,mehta2022mobilevitv2}.
+
+Measured latency in turn depended on the runtime (Table~\ref{tab:platforms}). With PyTorch on the Colab GPU and CPU, MobileViT-XS was only 1.6 to 1.7 times slower than MobileNetV2, well below its 3.4-fold operation count. On the smartphone, with a general-purpose WebAssembly runtime and one thread, the ratio rose to 3.2, close to the ratio of operations. A plausible explanation is that the optimised kernels of desktop runtimes execute the dense matrix multiplications of the attention layers close to the peak speed of the processor, while the depthwise convolutions of MobileNetV2 perform little arithmetic per memory access and benefit less from such optimisation. A runtime without these kernels removes the advantage of the hybrid model. Its deployment cost is therefore not a property of the architecture alone, and a benchmark on desktop hardware can understate the relative latency penalty on a phone by a factor of about two. FP16 did not reduce latency at a batch size of one on the GPU, which suggests that fixed overheads per call, rather than arithmetic, dominate the latency of models of this size. Storage does not separate the two models: their weights take 9.3\,MB and 7.9\,MB in FP32, and 4.7\,MB and 4.0\,MB in FP16.
+
+\subsubsection{Confidence of errors}
+MobileViT-XS made fewer errors, but a larger share of them with high confidence: 60\% of its wrong predictions had a confidence of at least 0.9, against 36\% for MobileNetV2 (Section~\ref{sec:e4}). For a diagnostic tool this is relevant, because a confident wrong diagnosis cannot be intercepted by a confidence threshold that defers uncertain cases to an expert. Neither model was calibrated in this study, and the difference may shrink after calibration, for example with temperature scaling.
+
+\subsubsection{Robustness and preprocessing}
+Under synthetic degradation neither architecture was more robust overall (Table~\ref{tab:robust}), but the differences followed a consistent pattern. MobileViT-XS was more robust to changes in brightness and contrast, which alter the global statistics of an image but preserve its structure, and less robust to blur and JPEG compression, which remove fine detail. One possible reading is that the global features of the hybrid model tolerate photometric shifts but depend more on high-frequency detail; this study does not test that explanation. More important for deployment is that noise, blur, strong compression and low resolution reduced the accuracy of both models to between 14\% and 50\% at the highest severity. The accuracy of more than 99\% measured on clean laboratory images therefore does not carry over to degraded images for either model. The preprocessing ablation changed accuracy by at most 0.09 percentage points (Table~\ref{tab:ablation}). Fine-tuning all layers appears to compensate for a mismatch in input normalisation, although each checkpoint's own preprocessing remained slightly better for both models.
+
+\subsection{Relation to the Objectives}
+
+Objective (i), fine-tuning both models under matched conditions, was met. Both models used the same leakage-controlled split, augmentation, optimiser, learning-rate schedule, training budget, hardware and three seeds, and differed only in architecture, input size and the normalisation each checkpoint expects (Section~\ref{sec:method}).
+
+Objective (ii), benchmarking accuracy, F1-score, model size, FLOPs and inference latency, was met for all five measures (Tables~\ref{tab:main} and~\ref{tab:deploy}). Latency was measured on a cloud GPU, on one core of a cloud CPU and on a smartphone (Table~\ref{tab:platforms}).
+
+Objective (iii), quantifying and visualising the trade-off, was met in Table~\ref{tab:tradeoff} and Fig.~\ref{fig:tradeoff}. MobileViT-XS gains 0.21 percentage points of accuracy and 0.29 points of macro-F1 at 3.4 times the operations and 1.6 to 3.2 times the latency, depending on the platform, while using 14\% fewer parameters.
+
+Objective (iv), a recommendation for edge deployment, follows from these results. When latency, throughput or energy is the binding constraint, for example in continuous scanning with the camera or on low-end processors without an accelerator, MobileNetV2 is the better choice. On the smartphone it classified an image in 0.11\,s, about nine images per second, 3.2 times faster than MobileViT-XS, and still reached 99.47\% test accuracy. When the application classifies single photographs and a misdiagnosis is costly, MobileViT-XS is preferable: a response time of about 0.35\,s is acceptable for a single photograph, and the model removes about 40\% of the errors, mostly on the most difficult corn and tomato diseases. On data like PlantVillage, the deployability-adjusted advantage of the hybrid model is therefore small and depends on the deployment setting rather than being general.
+
+\subsection{Comparison with Previous Work}
+
+The accuracy of both models agrees with the level of more than 99\% reported on PlantVillage in earlier work~\cite{mohanty2016plant,karthikeyan2025cnnseeib,pal2025mobres}. The MobileNetV2 result of 99.47 $\pm$ 0.06\% matches the 99.47\% reported for the MobileNetV2-based Mob-Res model~\cite{pal2025mobres}. Because the split used here keeps near-duplicate images within one set, the accuracies may be slightly lower than those obtained with a random split, in which duplicates can appear in both the training and the test data. The observation that the hybrid model is slower than a CNN of comparable parameter count agrees with the MobileViT and PMVT authors~\cite{mehta2022mobilevit,li2023pmvt} and with the finding of Ma et al.\ that operation counts and parameters are imperfect proxies for latency~\cite{ma2018shufflenetv2}. This study adds that the size of the penalty depends on the runtime: 1.6 to 1.7 times in PyTorch on cloud hardware, but 3.2 times on a smartphone. Latencies reported in other plant disease studies, such as 64\,ms per image for CNN-SEEIB~\cite{karthikeyan2025cnnseeib}, were measured on different hardware and cannot be compared directly with these results, which is why both models in this study were measured on the same devices. Finally, the strong loss of accuracy under degradation in E5 is consistent with the much lower accuracy that Kumar et al.\ report on field images (94.7\%)~\cite{kumar2025mobilefriendly}.
+
+\subsection{Limitations}
+
+\begin{itemize}
+\item \textbf{Laboratory data.} PlantVillage images show single leaves on a plain background. Studies on field images report clearly lower accuracy~\cite{kumar2025mobilefriendly}, and the synthetic corruptions of E5 only approximate field conditions.
+\item \textbf{One device and a browser runtime.} On-device latency was measured on one mid-range Android smartphone with ONNX Runtime Web on a single thread. Native runtimes such as TensorFlow Lite or ONNX Runtime Mobile, multi-threading, INT8 quantisation and neural accelerators can change both the absolute latency and the ratio between the models. Energy use and memory on the phone were not measured.
+\item \textbf{Resolution confound.} The models were compared at their native input sizes (224 and 256 pixels), so the effects of architecture and input size are not separated.
+\item \textbf{Training budget.} Training was limited to 10 epochs by the available GPU time. The validation loss of MobileViT-XS was still decreasing in two of three runs, so its accuracy may be slightly underestimated.
+\item \textbf{Leakage control.} Near-duplicates were grouped by image similarity. Photographs of the same leaf taken from a clearly different angle may not have been detected, which could inflate the test accuracy of both models slightly.
+\item \textbf{Statistical power.} Three seeds and test sets as small as 15 images for some classes make per-class results noisy, and the overall difference was significant in only two of the three seeds.
+\item \textbf{Scope of the cost measures.} All models were evaluated without quantisation or pruning, the FLOP counter includes only convolutions and matrix multiplications, and calibration was not studied.
+\end{itemize}
+
+\subsection{Future Work}
+
+The main finding, a small but consistent accuracy gain obtained at a latency cost that depends on the runtime, suggests five directions. First, both models should be deployed with native mobile runtimes, such as TensorFlow Lite or ONNX Runtime Mobile, with and without INT8 quantisation, and timed on several smartphones and a single-board computer such as a Raspberry Pi, together with memory and energy use. Second, both models should be evaluated and fine-tuned on field datasets such as PlantDoc and PlantWild~\cite{kumar2025mobilefriendly}, with augmentation against blur and compression, the degradations to which both models were most sensitive. Third, training both models at the same input resolution would show how much of the gain comes from the architecture itself. Fourth, calibration methods such as temperature scaling, combined with a rule that defers uncertain images to an expert, should be evaluated, given the confident errors of the hybrid model. Fifth, newer hybrids designed for mobile latency, such as MobileViTv2 with its separable self-attention~\cite{mehta2022mobilevitv2}, may retain the accuracy gain at a lower latency cost.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This study compared a lightweight CNN, MobileNetV2, with a hybrid CNN-ViT, MobileViT-XS, on a leakage-controlled split of PlantVillage under identical training conditions, and measured accuracy, model size, operation count and latency on a GPU, a CPU core and a smartphone. It thereby addresses the gap identified in the literature review, where plant disease studies mostly report accuracy alone and architecture studies report deployment cost on generic benchmarks. The hybrid model was consistently more accurate (99.68\% against 99.47\% test accuracy, about 40\% fewer errors) and had 14\% fewer parameters, but it needed 3.4 times the operations and was 1.6 to 1.7 times slower on cloud hardware and 3.2 times slower on a smartphone. Parameter count alone would have suggested the opposite ranking of deployment cost, and desktop latency would have suggested a relative latency penalty only about half as large as the one measured on the phone.
+
+On laboratory images both models are close to the accuracy ceiling, so the choice between them is decided by the deployment constraint: MobileNetV2 for latency-bound use such as continuous camera scanning, and MobileViT-XS for single-image diagnosis where accuracy matters most. Because both models lost most of their accuracy under strong image degradation, validation on field images and with native on-device runtimes is the necessary next step before either model is deployed in practice.
+
+\medskip
 \printbibliography
 
 \end{document}
