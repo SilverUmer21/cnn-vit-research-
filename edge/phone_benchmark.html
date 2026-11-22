@@ -175,7 +175,7 @@ async function fetchModel(url, onProgress) {
   const out = new Uint8Array(got); let off = 0; for (const p of parts) { out.set(p, off); off += p.length; }
   return out;
 }
-// the models are stored as base64 text, because artifacts serve text files but not raw .onnx files
+// the models are stored as base64 text, because some static hosts do not serve raw .onnx files
 function fromBase64(bytes) {
   const bin = atob(new TextDecoder().decode(bytes).trim());
   const out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
