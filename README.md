@@ -4,7 +4,7 @@
 
 This project compares a lightweight CNN, **MobileNetV2**, with a lightweight hybrid CNN-ViT, **MobileViT-XS**, on the PlantVillage leaf disease dataset (38 classes). Both models are fine-tuned under the same conditions. We then measure accuracy and the cost of running them: parameters, model size, operations, and latency on a GPU, a CPU core and an Android phone.
 
-The question is simple: **is the hybrid model's extra accuracy worth its deployment cost on an edge device?**
+The question: **is the hybrid model's extra accuracy worth its deployment cost on an edge device?**
 
 **Authors:** Muhammad Umer, Muhammad Ahmed and Sundas Habib, National University of Computer and Emerging Sciences (FAST-NUCES), Lahore.
 
